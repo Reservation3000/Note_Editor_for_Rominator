@@ -1,0 +1,93 @@
+body{
+  display: flex;            /* 設定為彈性容器 */
+  background-color:rgb(14, 14, 14);
+   min-height: 100vh; 
+}
+
+:root {
+  --border: #4b5546; /* 淺色模式的邊框顏色 */
+}
+
+@font-face {
+  font-family:"AldotheApache";
+  src: url("./assets/font/AldotheApache.ttf");
+}
+@font-face {
+  font-family: "HWYGWDE";
+  src: url("./assets/font/HWYGWDE.TTF");
+}
+@font-face {
+  font-family: "AltoneTrialRegular";
+  src: url("./assets/font/AltoneTrialRegular.ttf");
+}
+
+
+#main{
+  padding:10px;
+  margin:0 auto;   /* 置中 */
+  flex: 1;         /* 讓容器填滿剩餘空間 */
+}
+
+
+/* header ================================================================ */
+#header{
+  display: flex;
+  align-items: center;
+
+  height:50px;
+  padding:10px;
+  padding-left:40px;
+  border-bottom:1px solid var(--border);
+  background-color:rgb(29, 36, 28);
+}
+
+#header h1{
+  font-family: "AldotheApache";
+  font-size: 25px;
+  letter-spacing: 0px;   /* 字母間距 */
+  margin: 0;
+  color:rgb(255, 255, 255);
+}
+
+#header h2{
+  font-family: "AltoneTrialRegular";
+  white-space: pre-wrap;   /* 保留空白和換行 */
+  margin: 0 0 0 20px;
+  letter-spacing: 1px;   /* 字母間距 */
+  font-size: 13px;
+  color:rgb(102, 121, 96);
+}
+/* ================================================================================ */
+
+
+/* main============================================================================ */
+#baseEditor{
+}
+
+#noteEditor{
+}
+
+#circlePerview{
+}
+
+#timmingAndNoteEditor{
+}
+/* ================================================================================ */
+
+
+/* footer========================================================================== */
+#footer{
+  height:40px;
+  padding: 20px;
+  font-size: 12px;
+  border-top:1px solid var(--border);
+  background-color: rgb(29, 36, 28);
+  color:#ffffff;
+  text-align: center;
+}
+/* ================================================================================ */
+
+
+@media (max-width: 1500px){
+
+}
