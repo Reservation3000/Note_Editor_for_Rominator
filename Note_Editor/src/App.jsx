@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import './App.css'
 
+import {
+    DrawerStyle
+} from  './pages/components.jsx'
+
 function App() {
 
   return (
@@ -9,21 +13,31 @@ function App() {
         <div id="header">
           <h1>ROMINATOR</h1>
           <h2> /   Note  Editor</h2>
+          <DrawerStyle/>
         </div>
 
     {/* ================================================================================ */}
         <div id="main">
         
-          <div id="baseEditor">
-          </div>
           
-          <div id="noteEditor">
+          <div id="containerLeft">
+
+            <div id="noteEditor">
+            </div>
+
+            <div id="timmingAndNoteEditor">
+            </div>
+
           </div>
 
-          <div id="circlePerview">
-          </div>
+          <div id="containerRight">
 
-          <div id="timmingAndNoteEditor">
+            <div id="circlePerview">
+            </div>
+
+            <div id="baseEditor">
+            </div>
+            
           </div>
 
         </div>
@@ -37,3 +51,5 @@ function App() {
 }
 
 export default App
+
+
