@@ -26,3 +26,19 @@
 ---
 
 
+# 2026-10-09
+
+### Changed
+- pages 【components】=> drawerSetting / timmingAndNoteEditor
+
+### Added
+- Add framework for 【timmingAndNoteEditor】
+- Add music play buttom from 【timmingAndNoteEditor】
+- Add music control slider from 【timmingAndNoteEditor】
+  
+### Removed
+
+
+---
+
+

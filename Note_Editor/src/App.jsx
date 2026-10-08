@@ -1,9 +1,15 @@
 import { useState } from 'react'
 import './App.css'
 
+
 import {
-    DrawerStyle
-} from  './pages/components.jsx'
+    DrawerStyle,
+}from './pages/drawerSetting.jsx'
+
+import {
+    PlayButtom,
+    TimmingControl
+} from './pages/timmingAndNoteEditor.jsx'
 
 function App() {
 
@@ -26,6 +32,17 @@ function App() {
             </div>
 
             <div id="timmingAndNoteEditor">
+              <div className="timmingAndNoteEditor_Contanier_Top">
+                <PlayButtom/>
+                <TimmingControl/>
+              </div>
+
+              <div className="timmingAndNoteEditor_Contanier_Middle">
+              </div>
+
+              <div className="timmingAndNoteEditor_Contanier_Buttom">
+              </div>
+              
             </div>
 
           </div>

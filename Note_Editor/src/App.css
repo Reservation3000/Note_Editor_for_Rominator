@@ -29,6 +29,10 @@ body{
   src: url("./assets/font/AltoneTrialRegular.ttf");
 }
 
+/* all ===================================================================*/
+p{
+  letter-spacing:2px;
+}
 
 /* header ================================================================ */
 #header{
@@ -74,6 +78,7 @@ body{
 #main{
   display: flex;            
   width: 95%;
+  height: auto;
   padding:10px;
   margin: 15px 30px 15px 30px;
   align-self: center;   
@@ -96,15 +101,74 @@ body{
 }
 /* ================================================================================ */
 
-
+/* timmingAndNoteEditor============================================================ */
 #timmingAndNoteEditor{
   flex:2;
   display: flex;
   background-color:var(--containerBackground);
+  flex-direction: column;
   margin-left:5px;
   border-radius: 10px;
 }
 
+.timmingAndNoteEditor_Contanier_Top{
+  flex:1;
+  display: flex;
+  border-style:solid;
+  border-radius: 500px;
+  border-color: rgb(102, 121, 96);
+  border-width: 1px;
+  background-color: #0c0f0be7;
+  margin: 5px;
+}
+
+.timmingAndNoteEditor_Contanier_Middle{
+  flex:2;
+  display: flex;
+  background-color: #ffffff0d;
+  margin: 2px;
+}
+
+.timmingAndNoteEditor_Contanier_Buttom{
+  flex:15;
+  display: flex;
+  background-color: #ffffff;
+  margin: 2px;
+}
+
+/* top==========================*/
+.icon_PlayCircleFilled{
+  display: flex;
+  align-self: flex-start;
+  color: rgb(75, 87, 72);
+  font-size: 30px;
+  margin: 10px 15px 10px 15px;
+  transition: transform 0.1s ease, color 0.2s ease;
+}
+.icon_PlayCircleFilled:hover{
+  color: rgb(170, 215, 56);
+}
+.icon_PlayCircleFilled:active{
+  transform: scale(0.95);
+}
+
+.timmingControl_Contanier{
+  display: flex;
+  flex:1;
+  align-self: center;
+  align-items: center;
+  margin-right:15px ;
+}
+
+.timmingAndNoteEditor_Top_Slider{
+  display: flex;
+  flex:1;
+}
+
+/*=====================================================================================*/
+
+
+/* noteEditor==========================================================================*/
 #noteEditor{
   flex:1;
   display: flex;
