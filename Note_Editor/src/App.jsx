@@ -1,22 +1,24 @@
 import { useState } from 'react'
 import './App.css'
+import { InsuranceFilled } from '@ant-design/icons';
+
+import { DrawerStyle }from './pages/notesSetting.jsx'
+import { InputeNoteValues } from './pages/noteEditor.jsx'
+import { PlayButtom, TimmingControl, WhiceNoteType, LandSpaceControl} from './pages/timmingAndNoteEditor.jsx'
+import { InputFiles }from './pages/baseEditor.jsx'
 
 
-import {
-    DrawerStyle,
-}from './pages/drawerSetting.jsx'
 
-import {
-    PlayButtom,
-    TimmingControl
-} from './pages/timmingAndNoteEditor.jsx'
 
 function App() {
+
+  const [noteType,setNoteType] = useState('note');
 
   return (
     <>
     {/* ================================================================================ */}
         <div id="header">
+          <InsuranceFilled style={{ fontSize:'2rem' , marginRight:'5px' }}/>
           <h1>ROMINATOR</h1>
           <h2> /   Note  Editor</h2>
           <DrawerStyle/>
@@ -24,39 +26,65 @@ function App() {
 
     {/* ================================================================================ */}
         <div id="main">
-        
-          
-          <div id="containerLeft">
+          <div id="viewport">
 
-            <div id="noteEditor">
+            {/*==========================================================================*/}
+            {/*==========================================================================*/}
+            {/*==========================================================================*/}
+            <div id="containerLeft">
+
+            {/*==========================================================================*/}
+              <div id="noteEditor">
+                <div id="noteEditorContainerLeft">
+
+                </div>
+                <div id="noteEditorContainerRight">
+                  <InputeNoteValues noteType={noteType}/>
+                </div>
+              </div>
+
+            {/*==========================================================================*/}
+              <div id="timmingAndNoteEditor">
+                <div className="timmingAndNoteEditor_Contanier_Top">
+                  <PlayButtom/>
+                  <TimmingControl/>
+                </div>
+
+                <div className="timmingAndNoteEditor_Contanier_Middle">
+                  <WhiceNoteType noteType={noteType} setNoteType={setNoteType}/>
+                  <LandSpaceControl/>
+                </div>
+
+                <div className="timmingAndNoteEditor_Contanier_Buttom">
+                </div>
+                
+              </div>
+
             </div>
 
-            <div id="timmingAndNoteEditor">
-              <div className="timmingAndNoteEditor_Contanier_Top">
-                <PlayButtom/>
-                <TimmingControl/>
+
+          {/*==========================================================================*/}
+          {/*==========================================================================*/}
+          {/*==========================================================================*/}
+            <div id="containerRight">
+
+          {/*==========================================================================*/}
+              <div id="baseEditor">
+                <div id="baseEditorContainerLeft">
+                  <InputFiles />
+                </div>
+                <div id="baseEditorContainerRight">
+                  
+                </div>
               </div>
 
-              <div className="timmingAndNoteEditor_Contanier_Middle">
+          {/*==========================================================================*/}
+              <div id="circlePerview">
               </div>
 
-              <div className="timmingAndNoteEditor_Contanier_Buttom">
-              </div>
-              
             </div>
 
           </div>
-
-          <div id="containerRight">
-
-            <div id="circlePerview">
-            </div>
-
-            <div id="baseEditor">
-            </div>
-            
-          </div>
-
         </div>
 
     {/* ================================================================================ */}

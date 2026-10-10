@@ -1,0 +1,30 @@
+/* UseInputAndDescribe==================================================*/
+.useInputAndDescribestyle_container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.inputNumber{
+    background-color: #000000;   
+    border-color: #748d51;       
+    border-width: 1px;           
+    border-radius: 8px;          
+    margin: 10px 5px;
+}
+
+.inputNumber .inputNumber_input{
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.inputNumber:hover , .inputNumber:focus-within{
+    background-color: #1d241c;
+    border-color: #aacf75;
+    box-shadow: 0 0 0 2px rgb(170 207 117 25);
+}
+
+.inputNumber:hover .inputNumber_input, .inputNumber:focus-within .inputNumber_input{
+    color: #cdeaa1;
+}
+/* ========================================================================*/

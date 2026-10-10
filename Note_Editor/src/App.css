@@ -4,16 +4,10 @@ normalize.css{
   box-sizing: border-box;
 }
 
-
-body{
-  display: flex;            /* 設定為彈性容器 */
-  background-color:rgb(14, 14, 14);
-   min-height: 100vh; 
-}
-
 :root {
   --border: #4b5546; /* 淺色模式的邊框顏色 */
   --containerBackground: #96a19529; /* 淺色模式的容器背景顏色 */
+  --allActive: rgb(170, 215, 56); /* 所有按鈕active時的顏色 */
 }
 
 @font-face {
@@ -34,12 +28,13 @@ p{
   letter-spacing:2px;
 }
 
+
 /* header ================================================================ */
 #header{
   display: flex;
   align-items: center;
 
-  height:50px;
+  height:60px;
   max-height:150px; 
   padding:10px;
   padding-left:40px;
@@ -74,15 +69,22 @@ p{
 /* ================================================================================ */
 
 
-/* main============================================================================ */
+/* main/viewport==================================================================== */
 #main{
   display: flex;            
-  width: 95%;
+  width: 100%;
   height: auto;
   padding:10px;
   margin: 15px 30px 15px 30px;
   align-self: center;   
+  justify-content: center;
   flex: 1;         
+}
+
+#viewport{
+  display: flex;
+  width: 1920px;
+  height: 800px;
 }
 /* ================================================================================ */
 
@@ -123,20 +125,23 @@ p{
 }
 
 .timmingAndNoteEditor_Contanier_Middle{
-  flex:2;
+  flex:1;
   display: flex;
+  align-items:center;
   background-color: #ffffff0d;
+  padding-left: 10px;
   margin: 2px;
 }
 
 .timmingAndNoteEditor_Contanier_Buttom{
   flex:15;
   display: flex;
-  background-color: #ffffff;
-  margin: 2px;
+  background-color: #000000;
+  border: 2px solid var(--border) ;
+  margin: 5px 0px 0px 0px;
+  border-radius: 10px;
 }
 
-/* top==========================*/
 .icon_PlayCircleFilled{
   display: flex;
   align-self: flex-start;
@@ -146,7 +151,7 @@ p{
   transition: transform 0.1s ease, color 0.2s ease;
 }
 .icon_PlayCircleFilled:hover{
-  color: rgb(170, 215, 56);
+  color: var(--allActive);
 }
 .icon_PlayCircleFilled:active{
   transform: scale(0.95);
@@ -165,6 +170,31 @@ p{
   flex:1;
 }
 
+.landSpaceControl_Contanier{
+  display: flex;
+  flex:0.3;
+  flex-direction:row;
+  margin-left: auto;
+  margin-right: 30px;
+}
+
+.landSpaceControl_Slider{
+  width: 100%;
+}
+
+.landSpaceControl_plusButtom,.landSpaceControl_reduceButtom {
+  color: white;
+  margin: 3px;
+  transition: transform 0.1s ease, color 0.2s ease;
+}
+
+.landSpaceControl_plusButtom:hover , .landSpaceControl_reduceButtom:hover {
+  color: #bed1be;
+}
+.landSpaceControl_plusButtom:active , .landSpaceControl_reduceButtom:active {
+  color: var(--allActive);
+  transform: scale(0.95);
+}
 /*=====================================================================================*/
 
 
@@ -172,24 +202,129 @@ p{
 #noteEditor{
   flex:1;
   display: flex;
+  justify-content: flex-start;
   background-color:var(--containerBackground);
   margin-right:5px;
+  border: 1px solid #748d51;
+  border-radius: 10px;
+}
+#noteEditorContainerLeft{
+  display: flex;
+  flex:1;
+  background-color:#000000;
+  border-radius: 10px 0px 0px 10px ;
+}
+
+#noteEditorContainerRight{
+  display: flex;
+  flex:1;
+  margin-top: 5px;
+  margin-bottom:5px;
+  padding: 10px;
+}
+
+.inputeNoteValueContainer{
+  display: flex;
+  flex:1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.inputeNoteValue_RotateType{
+  display: flex;
+  align-items: center;
+  width:160px;
+  margin: 10px 5px;
+}
+
+.rotateSelect{
+  width: 200px;
+  border: 1px solid #748d51;
+  background-color: #000000;
+  color:#ffffff;
+}
+
+.rotateSelect:hover{
+  border: 2px solid var(--allActive);
+  border-color:#aacf75;
+  color:#aacf75;
+}
+
+
+.icon_redoOutlined , .icon_undoOutlined{
+  font-size: 2rem;
+  margin-left:15px;
+}
+
+.WhiceNoteTypeIsChose{
+  display: flex;
+  margin-top:15px ;
+  font-family: AltoneTrialRegular;
+  font-size: 2rem;
+  color:var(--allActive)
+}
+
+.addOrDelete{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 70%;
+  font-size: 2rem;
+  margin-top: 10px;
+}
+
+.icon_addNote{
+  margin-left: 5px;
+  color:#748d51;
+} 
+
+.icon_deleteNote{
+  margin-right: 5px;
+  color:#748d51;
+}
+
+.icon_addNote:hover , .icon_deleteNote:hover{
+  color:#aacf75;
+}
+
+.icon_addNote:active , .icon_deleteNote:active{
+  color:#ffffff;
+}
+
+.addOrDeleteDivider{
+  align-self: stretch;
+  border-left: 1px solid #748d51;
+}
+/*=====================================================================================*/
+
+/*baseEditor==========================================================================*/
+#baseEditor{
+  flex:1;
+  display: flex;
+  flex-direction: row;
+  background-color:var(--containerBackground);
+  margin-bottom:10px;
   border-radius: 10px;
 }
 
-#baseEditor{
+#baseEditorContainerLeft{
+  display: flex;
+  flex:3;
+  padding: 5px;
+}
+
+#baseEditorContainerRight{
+  display: flex;
+  flex:5;
+}
+/*=====================================================================================*/
+
+
+
+#circlePerview{
   flex:2.5;
   display: flex;
   background-color:var(--containerBackground);
-  margin-top:5px;
-  border-radius: 10px;
-}
-
-#circlePerview{
-  flex:1;
-  display: flex;
-  background-color:var(--containerBackground);
-  margin-bottom:5px;
   border-radius: 10px;
 }
 
@@ -199,7 +334,7 @@ p{
 
 /* footer========================================================================== */
 #footer{
-  height:40px;
+  height:60px;
   padding: 20px;
   font-size: 12px;
   border-top:1px solid var(--border);
@@ -215,11 +350,10 @@ p{
 
 
 @media (max-width: 1000px){
-  #main{
+  #viewport{
     display: flex;
     justify-content: center;
     flex-direction: column;
-    
   }
 
   #containerLeft{
