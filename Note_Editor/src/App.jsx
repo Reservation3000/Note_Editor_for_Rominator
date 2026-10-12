@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import './App.css'
 import { InsuranceFilled } from '@ant-design/icons';
+import { Divider } from 'antd';
 
 import { DrawerStyle }from './pages/notesSetting.jsx'
-import { InputeNoteValues } from './pages/noteEditor.jsx'
+import { InputeNoteValues , NotesList } from './pages/noteEditor.jsx'
 import { PlayButtom, TimmingControl, WhiceNoteType, LandSpaceControl} from './pages/timmingAndNoteEditor.jsx'
-import { InputFiles }from './pages/baseEditor.jsx'
+import { InputFiles, InputMusic , BaseEditor_Divider, InputBaseSetting, InputBaseSetting_noteValue, NoteSpeedControl}from './pages/baseEditor.jsx'
 
 
 
@@ -13,6 +14,11 @@ import { InputFiles }from './pages/baseEditor.jsx'
 function App() {
 
   const [noteType,setNoteType] = useState('note');
+  const [csvData,setCsvData] = useState([]);
+  const [startLand,setStartLand] = useState(0);
+  const [chartOffest,setChartOffest] = useState(0);
+  const [speed , setSpeed] = useState(0.06);
+  const [beat , setBeat] = useState(4);
 
   return (
     <>
@@ -36,8 +42,9 @@ function App() {
             {/*==========================================================================*/}
               <div id="noteEditor">
                 <div id="noteEditorContainerLeft">
-
+                  <NotesList csvData={csvData}/>
                 </div>
+
                 <div id="noteEditorContainerRight">
                   <InputeNoteValues noteType={noteType}/>
                 </div>
@@ -70,11 +77,35 @@ function App() {
 
           {/*==========================================================================*/}
               <div id="baseEditor">
+                
                 <div id="baseEditorContainerLeft">
-                  <InputFiles />
+                  <InputFiles setCsvData={setCsvData}
+                              setStartLand={setStartLand}
+                              setChartOffest={setChartOffest}
+                  /> 
+                  <InputMusic setCsvData={setCsvData}
+                              setStartLand={setStartLand}
+                              setChartOffest={setChartOffest}
+                  />
+                  <p>In put your files.</p>
                 </div>
+
+                <div id="baseEditorContainerDivider">
+                  <BaseEditor_Divider/>
+                </div>
+
+                <div id="baseEditorContainerMiddle">
+                  <InputBaseSetting chartOffest={chartOffest} 
+                                    startLand={startLand} 
+                                    beat={beat}
+                                    setChartOffest={setChartOffest} 
+                                    setStartLand={setStartLand} 
+                                    setBeat={setBeat}/>
+                </div>
+
                 <div id="baseEditorContainerRight">
-                  
+                  <InputBaseSetting_noteValue/>
+                  <NoteSpeedControl setSpeed={setSpeed} speed={speed}/>
                 </div>
               </div>
 

@@ -67,11 +67,6 @@ export const LandSpaceControl = ({ duration = 100 }) => {
         keyboard
         min={0}
         max={duration}
-        styles={{
-          track: { backgroundColor: '#aacf75' },
-          rail: { backgroundColor: '#4b5748' },
-          handle: { backgroundColor: '#fff', borderColor: '#aacf75' },
-        }}
         value={value}
         onChange={setValue}
       />

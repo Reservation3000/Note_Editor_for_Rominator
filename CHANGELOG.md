@@ -59,3 +59,23 @@
 
 
 ---
+
+
+# 2026-10-12
+
+### Changed
+- 
+
+### Added
+- Add ConfigProvider for Antd color (改變antd全域主色調)
+- Add【control.js】
+- Add baseEditor-Container-Left (notes list)
+- Finish baseEditor framework
+- baseEditor can input .csv file,and view on baseEditor-Container-Left
+- baseEditor can input .mp3 (but can't player)
+- offest、start land can read and input (but can't write)
+
+### Removed
+
+
+---

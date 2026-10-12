@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { UseInputAndDescribe } from "../hook.jsx";
-import { RedoOutlined , UndoOutlined , DeleteFilled , PrinterFilled} from '@ant-design/icons';
+import { RedoOutlined , UndoOutlined , DeleteFilled , PrinterFilled ,
+         TrademarkCircleFilled , ReloadOutlined , PieChartFilled 
+} from '@ant-design/icons';
 import { Divider , Select , message } from 'antd';
 
 // 輸入音符值的輸入框組合================================================
@@ -82,3 +84,37 @@ export const InputeNoteValues = ({ noteType }) =>{
         </div>
     );
 }
+
+
+const showNot = {
+  drag: <PieChartFilled style={{ color: 'rgb(90, 208, 208)' }} />,
+  note: <TrademarkCircleFilled style={{ color: 'rgb(170, 215, 56)' }} />,
+  rotate: <ReloadOutlined style={{ color: 'rgb(255, 255, 255)' }} />,
+};
+
+// 條列式顯示所有音符資料。
+export const NotesList = ({ csvData }) => {
+  return (
+    <div className={`notesList${!csvData?.length ? ' notesListEmpty' : ''}`}>
+
+      {!csvData?.length ? (
+        <p>no Data. <br /> Please input csv data.</p>
+      ) : (csvData.map((row, index) => (
+
+          <div className="notesListRow" key={`${row.type}-${index}`}>
+            {showNot[row.type]}
+
+            <div className="notesListText">
+              {row.type === 'drag'
+                ? `${row.timeStart}, ${row.timeEnd}, ${row.landStart}, ${row.landEnd}`
+                : `${row.time}${row.land !== undefined ? `, ${row.land}` : ''}`
+              }
+              {row.direction !== undefined && `, ${row.direction}`}
+            </div>     
+            
+          </div>
+        ))
+      )}
+    </div>
+  );
+};

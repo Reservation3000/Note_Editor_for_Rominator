@@ -5,6 +5,8 @@ normalize.css{
 }
 
 :root {
+  --input: #000000; /*輸入框背景*/
+  --input_hover: ##1d241c; /*輸入框hover背景*/
   --border: #4b5546; /* 淺色模式的邊框顏色 */
   --containerBackground: #96a19529; /* 淺色模式的容器背景顏色 */
   --allActive: rgb(170, 215, 56); /* 所有按鈕active時的顏色 */
@@ -22,10 +24,17 @@ normalize.css{
   font-family: "AltoneTrialRegular";
   src: url("./assets/font/AltoneTrialRegular.ttf");
 }
+@font-face {
+  font-family: "PixelOperator";
+  src: url("./assets/font/PixelOperator.ttf");
+}
+PixelOperator
 
 /* all ===================================================================*/
 p{
   letter-spacing:2px;
+  font-size: 12px;
+   color:#ffffff;
 }
 
 
@@ -36,6 +45,7 @@ p{
 
   height:60px;
   max-height:150px; 
+  width: 100%;
   padding:10px;
   padding-left:40px;
   border-bottom:1px solid var(--border);
@@ -202,19 +212,72 @@ p{
 #noteEditor{
   flex:1;
   display: flex;
+  min-height: 0;
   justify-content: flex-start;
   background-color:var(--containerBackground);
   margin-right:5px;
   border: 1px solid #748d51;
   border-radius: 10px;
 }
+
 #noteEditorContainerLeft{
   display: flex;
   flex:1;
+  min-width: 0;
+  min-height: 0;
   background-color:#000000;
   border-radius: 10px 0px 0px 10px ;
+  overflow: auto;
+}
+#noteEditorContainerLeft::-webkit-scrollbar {
+  background-color:var(--border);
+  width: 6px;
+  height: 0px;
+}
+#noteEditorContainerLeft::-webkit-scrollbar-thumb {
+  background-color: #bada55;
+  border-radius: 5px;
 }
 
+/* list=============================*/
+.notesList {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.notesListEmpty {
+  justify-content: center;
+  text-align: center;
+}
+
+.notesListRow {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 40px;
+  padding-left: 8px;
+  font-size: 12px;
+  border: 1px solid #32382f;
+  background-color: #111510;
+}
+
+.notesListText{
+  display: flex;
+  flex-direction: row;
+  line-height: 1.5;
+  font-size: 12.3px;
+  color: #c5c6c2;
+  margin-left: 8px;
+  align-items: flex-start;
+}
+/* =================================*/
+
+/* input============================*/
 #noteEditorContainerRight{
   display: flex;
   flex:1;
@@ -233,7 +296,7 @@ p{
 .inputeNoteValue_RotateType{
   display: flex;
   align-items: center;
-  width:160px;
+  width: 160px;
   margin: 10px 5px;
 }
 
@@ -294,6 +357,7 @@ p{
 .addOrDeleteDivider{
   align-self: stretch;
   border-left: 1px solid #748d51;
+/* =================================*/
 }
 /*=====================================================================================*/
 
@@ -309,13 +373,91 @@ p{
 
 #baseEditorContainerLeft{
   display: flex;
-  flex:3;
+  flex:5;
+  padding: 15px;
+  flex-direction: column;
+  gap:7px;
+}
+
+#baseEditorContainerDivider{
+  display: flex;
+  flex:1;
+  align-items: center;
+}
+
+#baseEditorContainerMiddle{
+  display: flex;
+  flex:5;
   padding: 5px;
+  justify-content: center;
+  flex-direction: column;
 }
 
 #baseEditorContainerRight{
   display: flex;
   flex:5;
+  padding: 15px;
+  flex-direction: column;
+}
+
+.inputCSVFile , .inputMusic {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  flex-direction: column;
+  background-color: var(--input);
+  gap:3px;
+  width: 100%;
+  height: 40%;
+  border-radius: 10px;
+  border: 1px dashed var(--border); /* 將 solid 改為 dashed */
+}
+
+.inputCSVFile:hover{
+  background-color: var(--border);
+  color:#bed1be;
+}
+
+.inputCSVFile.has-file {
+  color:#748d51;
+}
+
+.inputeTimeSignature{
+  display: flex;
+  align-items: end;
+  flex-direction: column;
+  width: 210px;
+  margin-bottom: 15px ;
+}
+
+.noteSpeedControl{
+  display: flex;
+  width: auto;
+  flex-direction: column;
+  align-items:end;
+}
+
+.noteSpeedSlider_background{
+  display: flex;
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #000000;
+  border-radius: 20px;
+  border:1px solid var(--border);
+}
+
+.noteSpeedControl p {
+  margin: 0;
+  font-size: 12px;
+  color: #ffffff;
+  letter-spacing: 2px;
+}
+
+.noteSpeedSlider{
+  display: flex;
+  width: 100%;
 }
 /*=====================================================================================*/
 
@@ -359,6 +501,7 @@ p{
   #containerLeft{
     display: flex;
     flex:1;
+    min-height: 0;
     margin:0 0 5px 0;
   }
 
