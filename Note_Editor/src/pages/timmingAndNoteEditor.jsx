@@ -1,19 +1,31 @@
 import { useState } from 'react';
-import { Slider , Radio } from 'antd';
-import { PlayCircleFilled , PlusCircleFilled  , MinusCircleFilled } from '@ant-design/icons';
-
+import { InputNumber, Slider , Radio } from 'antd';
+import { PlayCircleFilled , PauseCircleFilled , PlusCircleFilled  , MinusCircleFilled } from '@ant-design/icons';
+import { musicTimeZ } from '../store';
+import { MusicTimeInput } from './control.jsx';
+import { ScrollMarker } from './editorCanvas.jsx';
 
 //撥放按鈕===============================================================
-export const PlayButtom =() =>{
+export const PlayButton = ({ setStop, stop }) => {
+  const onChange = () => {
+    setStop((prev) => !prev);
+  };
+
   return(
-    <PlayCircleFilled className="icon_PlayCircleFilled"/>
+    stop ? <PlayCircleFilled className="icon_PlayCircleFilled" onClick={onChange} /> 
+          : 
+          <PauseCircleFilled className="icon_PlayCircleFilled"onClick={onChange} />
   );
-}
+};
 
 // 控制音樂時的滑桿=======================================================
-export const TimmingControl =({ duration = 100 }) =>{
+export const TimmingControl =({editorRef, timmingControlValue, musicDuration}) =>{
+  const [previewValue, setPreviewValue] = useState(null);
+  const value = musicTimeZ((state) => state.musicTime);
+  const duration = musicDuration;
+  const musicSeek = musicTimeZ((state) => state.musicSeek);
+  const sliderValue = previewValue ?? value;
 
-  const [value, setValue] = useState(0);
   const formatTime = seconds => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
@@ -32,11 +44,45 @@ export const TimmingControl =({ duration = 100 }) =>{
             rail: { backgroundColor: '#4b5748' },
             handle: { backgroundColor: '#fff', borderColor: '#aacf75' },
           }}
-          value={value}
-          onChange={setValue}
-          tooltip={{ formatter: value => formatTime(value ?? 0) }}
+          value={sliderValue}
+          onChange={(time) => {
+            setPreviewValue(time);
+            ScrollMarker(editorRef, (time / 1000) * timmingControlValue);
+          }}  //拖曳滑桿時持續觸發，讓手把不被音樂播放中的時間更新拉回去
+          onChangeComplete={(time) => {  // 放開滑桿時觸發
+            musicSeek(time);
+            musicTimeZ.getState().setMusicTime(time);
+            ScrollMarker(editorRef, (time / 1000) * timmingControlValue);
+            setPreviewValue(null);
+          }}
+          tooltip={{ formatter: time => formatTime((time ?? 0) / 1000) }}
         />
-        <p style={{color:'#ffffff'}}>{formatTime(value ?? 0)}</p>
+        <p style={{color:'#ffffff'}}>{formatTime((sliderValue ?? 0) / 1000)}</p>
+    </div>
+  );
+}
+
+// 顯示毫秒數
+export const TimmingMsShow =() =>{
+
+  const { duration, inputTime, startEditing, seekToInputTime, setInputTime } = MusicTimeInput();
+
+  return(
+    <div className='ShowMs'>
+      <InputNumber
+        classNames={{ root: 'inputNumber', input: 'inputNumber_input' }}
+        min={0}
+        max={duration}
+        step={1}
+        precision={0}
+        value={inputTime}
+        controls={false}
+        onFocus={startEditing}
+        onChange={setInputTime}
+        onPressEnter={seekToInputTime}
+        onBlur={seekToInputTime}
+      />
+      <p className='p2'> Ms </p>
     </div>
   );
 }
@@ -47,7 +93,7 @@ export const WhiceNoteType =({ noteType , setNoteType }) =>{
    return(
       <Radio.Group className='timmingControl_ChoseNoteTypeButtom' buttonStyle="solid" value={noteType} onChange={e => setNoteType(e.target.value)}>
         <Radio.Button value="note" variant="outlined">note</Radio.Button>
-        <Radio.Button value="darg" variant="outlined">darg</Radio.Button>
+        <Radio.Button value="drag" variant="outlined">drag</Radio.Button>
         <Radio.Button value="rotate" variant="outlined">rotate</Radio.Button>
       </Radio.Group>
    );
@@ -55,21 +101,32 @@ export const WhiceNoteType =({ noteType , setNoteType }) =>{
 }
 
 // 縮放軌道上下間距的滑條=================================================
-export const LandSpaceControl = ({ duration = 100 }) => {
-  const [value, setValue] = useState(30);
+export const LandSpaceControl = ({ timmingControlValue , setTimmingControlValue }) => {
+
+  const onChange = (value) => {
+    setTimmingControlValue(value);
+  }
 
   return (
     <div className='landSpaceControl_Contanier'>
-      <PlusCircleFilled className="landSpaceControl_plusButtom"/>
-      <MinusCircleFilled className="landSpaceControl_reduceButtom"/>
+      <PlusCircleFilled 
+        className="landSpaceControl_plusButtom"
+        onClick={() => setTimmingControlValue(prev => Math.min(prev + 5, 150))}
+      />
+      <MinusCircleFilled 
+        className="landSpaceControl_reduceButtom"
+        onClick={() => setTimmingControlValue(prev => Math.max(prev - 5, 20))}
+      />
       <Slider
         className='landSpaceControl_Slider'
         keyboard
-        min={0}
-        max={duration}
-        value={value}
-        onChange={setValue}
+        min={20}
+        max={200}
+        value={timmingControlValue}
+        onChange={onChange}
       />
     </div>
   );
 };
+
+

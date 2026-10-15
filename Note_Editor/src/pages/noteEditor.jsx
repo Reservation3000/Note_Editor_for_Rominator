@@ -1,120 +1,151 @@
-import { useState } from "react";
-import { UseInputAndDescribe } from "../hook.jsx";
-import { RedoOutlined , UndoOutlined , DeleteFilled , PrinterFilled ,
-         TrademarkCircleFilled , ReloadOutlined , PieChartFilled 
+import { useEffect, useState } from 'react';
+import { UseInputAndDescribe } from '../hook.jsx';
+import {
+  RedoOutlined,
+  UndoOutlined,
+  DeleteFilled,
+  PrinterFilled,
+  TrademarkCircleFilled,
+  ReloadOutlined,
+  PieChartFilled,
 } from '@ant-design/icons';
-import { Divider , Select , message } from 'antd';
+import { Divider, Select } from 'antd';
+import { useNoteEditor } from './noteEditorState.jsx';
+import { createNoteUpdates, getNoteFormValues, getNoteTime } from './noteEditorModel.js';
 
-// 輸入音符值的輸入框組合================================================
-export const InputeNoteValues = ({ noteType }) =>{
+const DirectionInput = ({ value, onChange }) => (
+  <div className="inputeNoteValue_RotateType">
+    <Select
+      className="rotateSelect"
+      value={value ?? 0}
+      onChange={onChange}
+      options={[
+        { value: 1, label: '1' },
+        { value: 0, label: '0' },
+      ]}
+    />
+    {value === 1 ? (
+      <UndoOutlined className="icon_redoOutlined" style={{ color: '#008cff' }} />
+    ) : (
+      <RedoOutlined className="icon_undoOutlined" style={{ color: '#ff0000' }} />
+    )}
+  </div>
+);
 
-  const[rotateType , setRotateType]=useState(null);
+// Properties for the selected note are edited locally and committed as one update.
+export const InputeNoteValues = () => {
+  const { noteType, selectedNote, applySelectedNote, deleteSelectedNote } = useNoteEditor();
+  const displayType = selectedNote?.type ?? noteType;
+  const [fieldValues, setFieldValues] = useState(() => getNoteFormValues(selectedNote));
 
-    const handleChange = (value) => {
-        setRotateType(value);
-    };
+  useEffect(() => {
+    setFieldValues(getNoteFormValues(selectedNote));
+  }, [selectedNote]);
 
-    return(
-        <div className="inputeNoteValueContainer">
-          
-          <Divider style={{ borderColor:'#ffffff', fontSize: "25px" , color: "#ffffff"}}>
-            {noteType}
-          </Divider>
+  const setFieldValue = (field) => (value) => {
+    setFieldValues((currentValues) => ({
+      ...currentValues,
+      [field]: value === null ? null : Math.round(Number(value)),
+    }));
+  };
 
-          {noteType === 'note' && (
-            <>
-              <UseInputAndDescribe describe="time" />
-              <UseInputAndDescribe describe="land" />
-            </>
-          )}
-          {noteType === 'darg' && (
-            <>
-              <UseInputAndDescribe describe="starTime" />
-              <UseInputAndDescribe describe="endTime" />
-              <UseInputAndDescribe describe="startLand" />
-              <UseInputAndDescribe describe="endLand" />
+  const applyChanges = () => {
+    if (selectedNote) applySelectedNote(createNoteUpdates(selectedNote, fieldValues));
+  };
 
-              <div className="inputeNoteValue_RotateType">
-                <Select
-                    className="rotateSelect"
-                    defaultValue="CW"
-                    onChange={handleChange}
-                    options={[
-                      { value: 'CW', label: 'CW' },
-                      { value: 'ACW', label: 'ACW' },
-                    ]}
-                />
-                {rotateType === "CW" ? (
-                  <RedoOutlined className="icon_redoOutlined" style={{ color: "#ff0000" }} />
-                ) : (
-                  <UndoOutlined className="icon_undoOutlined" style={{ color: "#008cff" }} />
-                )}
+  return (
+    <div className="inputeNoteValueContainer">
+      <Divider style={{ borderColor: '#ffffff', fontSize: '25px', color: '#ffffff' }}>
+        {displayType}
+      </Divider>
 
-              </div>
-            </>
-          )}
-          {noteType === 'rotate' && (
-            <>
-              <UseInputAndDescribe describe="time" />
-              <div className="inputeNoteValue_RotateType">
-                <Select
-                    className="rotateSelect"
-                    defaultValue="CW"
-                    onChange={handleChange}
-                    options={[
-                      { value: 'CW', label: 'CW' },
-                      { value: 'ACW', label: 'ACW' },
-                    ]}
-                />
-                {rotateType === "CW" ? (
-                  <RedoOutlined className="icon_redoOutlined" style={{ color: "#ff0000" }} />
-                ) : (
-                  <UndoOutlined className="icon_undoOutlined" style={{ color: "#008cff" }} />
-                )}
+      {displayType === 'note' && (
+        <>
+          <UseInputAndDescribe describe="time" inputValue={fieldValues.time ?? 0} setValue={setFieldValue('time')} precision={0} />
+          <UseInputAndDescribe describe="land" inputValue={fieldValues.land ?? 0} setValue={setFieldValue('land')} precision={0} />
+        </>
+      )}
 
-              </div>
-            </>
-          )}
+      {displayType === 'drag' && (
+        <>
+          <UseInputAndDescribe describe="startTime" inputValue={fieldValues.startTime ?? 0} setValue={setFieldValue('startTime')} precision={0} />
+          <UseInputAndDescribe describe="endTime" inputValue={fieldValues.endTime ?? 0} setValue={setFieldValue('endTime')} precision={0} />
+          <UseInputAndDescribe describe="startLand" inputValue={fieldValues.startLand ?? 0} setValue={setFieldValue('startLand')} precision={0} />
+          <UseInputAndDescribe describe="endLand" inputValue={fieldValues.endLand ?? 0} setValue={setFieldValue('endLand')} precision={0} />
+          <DirectionInput value={fieldValues.direction} onChange={setFieldValue('direction')} />
+        </>
+      )}
 
-          <div className="addOrDelete">
-            <PrinterFilled className="icon_addNote"/>
-            <span className="addOrDeleteDivider" aria-hidden="true" />
-            <DeleteFilled className="icon_deleteNote"/>
-          </div>
-        </div>
-    );
-}
+      {displayType === 'rotate' && (
+        <>
+          <UseInputAndDescribe describe="time" inputValue={fieldValues.time ?? 0} setValue={setFieldValue('time')} precision={0} />
+          <DirectionInput value={fieldValues.direction} onChange={setFieldValue('direction')} />
+        </>
+      )}
 
+      <div className="addOrDelete">
+        <button
+          type="button"
+          className="noteActionButton"
+          aria-label="套用音符編輯"
+          title="套用編輯"
+          disabled={!selectedNote}
+          onClick={applyChanges}
+        >
+          <PrinterFilled className="icon_addNote" />
+        </button>
+        <span className="addOrDeleteDivider" aria-hidden="true" />
+        <button
+          type="button"
+          className="noteActionButton"
+          aria-label="刪除音符"
+          title="刪除音符"
+          disabled={!selectedNote}
+          onClick={deleteSelectedNote}
+        >
+          <DeleteFilled className="icon_deleteNote" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
-const showNot = {
+const NOTE_ICONS = {
   drag: <PieChartFilled style={{ color: 'rgb(90, 208, 208)' }} />,
   note: <TrademarkCircleFilled style={{ color: 'rgb(170, 215, 56)' }} />,
   rotate: <ReloadOutlined style={{ color: 'rgb(255, 255, 255)' }} />,
 };
 
-// 條列式顯示所有音符資料。
-export const NotesList = ({ csvData }) => {
+const formatNote = (note) => {
+  const values = note.type === 'drag'
+    ? [note.timeStart, note.timeEnd, note.landStart, note.landEnd]
+    : [note.time, ...(note.land === undefined ? [] : [note.land])];
+  if (note.direction !== undefined) values.push(note.direction);
+  return values.map((value) => Math.round(value)).join(', ');
+};
+
+// The list is sorted for reading, while each row keeps its original editor index.
+export const NotesList = () => {
+  const { notes, selectedIndex, selectNote } = useNoteEditor();
+  const sortedNotes = notes
+    .map((note, index) => ({ note, index }))
+    .sort((first, second) => getNoteTime(first.note) - getNoteTime(second.note) || first.index - second.index);
+
   return (
-    <div className={`notesList${!csvData?.length ? ' notesListEmpty' : ''}`}>
-
-      {!csvData?.length ? (
+    <div className={`notesList${!notes.length ? ' notesListEmpty' : ''}`}>
+      {!notes.length ? (
         <p>no Data. <br /> Please input csv data.</p>
-      ) : (csvData.map((row, index) => (
-
-          <div className="notesListRow" key={`${row.type}-${index}`}>
-            {showNot[row.type]}
-
-            <div className="notesListText">
-              {row.type === 'drag'
-                ? `${row.timeStart}, ${row.timeEnd}, ${row.landStart}, ${row.landEnd}`
-                : `${row.time}${row.land !== undefined ? `, ${row.land}` : ''}`
-              }
-              {row.direction !== undefined && `, ${row.direction}`}
-            </div>     
-            
-          </div>
-        ))
-      )}
+      ) : sortedNotes.map(({ note, index }) => (
+        <button
+          type="button"
+          className={selectedIndex === index ? 'notesListRow notesListRowSelected' : 'notesListRow'}
+          key={`${note.type}-${index}`}
+          onClick={() => selectNote(index)}
+        >
+          {NOTE_ICONS[note.type]}
+          <span className="notesListText">{formatNote(note)}</span>
+        </button>
+      ))}
     </div>
   );
 };

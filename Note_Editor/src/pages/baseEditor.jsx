@@ -1,6 +1,6 @@
-import { useState , useEffect } from "react";
+import { useState } from "react";
 import { Divider , Select , Slider } from 'antd';
-import { dataProcessing } from './control'
+import { DataGet , MusicController , MusicChose } from './control.jsx'
 import { UseInputAndDescribe} from "../hook";
 import { CustomerServiceFilled , ContainerFilled } from '@ant-design/icons';
 
@@ -15,22 +15,7 @@ export const InputFiles = ({ setCsvData , setStartLand , setChartOffest }) => {
     if (!file) return;
 
     setFileName(file.name);  //在畫面中顯示檔名
-    
-    try {
-      const textData = await file.text();  // 取得檔案的純文字內容（適用於 CSV, TXT, JSON 等）
-      
-      const { processedChart, startLand, chartOffset } = dataProcessing(textData); // 處理csv資料，並解構取得三個變數
-
-      console.log(dataProcessing(textData));
-
-      // 把三個變數資料存進state
-      setCsvData(processedChart);                                     // 譜面
-      setStartLand(Number.isFinite(startLand) ? startLand : 0);       // 第一條軌道
-      setChartOffest(Number.isFinite(chartOffset) ? chartOffset : 0); // 偏移
-
-    } catch (error) {
-      console.error('get file error:', error);
-    }
+    await DataGet(file, setCsvData, setStartLand, setChartOffest);
   };
   
   return(
@@ -50,17 +35,15 @@ export const InputFiles = ({ setCsvData , setStartLand , setChartOffest }) => {
   );
 }
 
-export const InputMusic = ({ setCsvData , setStartLand , setChartOffest }) => {
+export const InputMusic = ({ setStop, stop , setMusicDuration }) => {
 
   const [fileName, setFileName] = useState('');
+  const [musicUrl,setMusicUrl] = useState('');
+
+  MusicController(musicUrl, setStop, stop, setMusicDuration);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setFileName(file.name);  //在畫面中顯示檔名
-    const url = URL.createObjectURL(file); //記憶體中存入一個臨時的本地音樂網址
-    
+    MusicChose( e , setStop , setFileName , setMusicUrl, setMusicDuration ); 
   }
 
   return(
@@ -68,7 +51,7 @@ export const InputMusic = ({ setCsvData , setStartLand , setChartOffest }) => {
       <label className={`inputCSVFile ${fileName ? "has-file" : ""}`}>
         <input type="file"
                id="mp3File"
-               accept=".mp3"
+               accept=".mp3,audio/mpeg"
                style={{ display: 'none' }}  
                onChange={handleFileChange}  
         />
@@ -87,42 +70,41 @@ export const BaseEditor_Divider = () => {
   );
 }
 
-export const InputBaseSetting = ({ chartOffest , startLand , beat , setChartOffest , setStartLand , setBeat }) =>{
+export const InputBaseSetting = ({ chartOffest , startLand , beat , bpm , setChartOffest , setStartLand , setBeat , setBpm }) =>{
 
   return(
     <>
-      <UseInputAndDescribe describe="bpm"/>
-      <UseInputAndDescribe describe="offest(ms)" inputValue={chartOffest} setValue={setChartOffest}/>
+      <UseInputAndDescribe describe="bpm" inputValue={bpm} setValue={setBpm} min={1} max={300}/>
+      <UseInputAndDescribe describe="offest(ms)" inputValue={chartOffest} setValue={setChartOffest} min={-10000} max={10000}/>
       <UseInputAndDescribe describe="start land" inputValue={startLand} setValue={setStartLand} />
-      <UseInputAndDescribe describe="beat" inputValue={beat} setValue={setBeat}/>
+      <UseInputAndDescribe describe="分音符一拍" inputValue={beat} setValue={setBeat} min={1} max={64}/>
     </>
   );
 }
 
-export const InputBaseSetting_noteValue = () => {
+export const InputBaseSetting_noteValue = ({ setSignature }) => {
 
-  const[noteValue , setNoteValue]=useState();
 
   const handleChange = (value) => {
-        setNoteValue(value);
+        setSignature(value);  
     };
 
   return(
     <>
       <div className="inputeTimeSignature">
 
-        <p style={{ fontSize: '12px' , color:'#ffffff' }}>time_signature</p>
+        <p style={{ fontSize: '12px' , color:'#ffffff' }}>每小節幾拍</p>
 
          <Select className="rotateSelect"
-                 defaultValue="4/4"
+                 defaultValue="4"
                  onChange={handleChange}
                  options={[
-                  { value: '4/4', label: '4/4' },
-                  { value: '3/4', label: '3/4' },
-                  { value: '2/4', label: '2/4' },
-                  { value: '6/8', label: '6/8' },
-                  { value: '5/4', label: '5/4' },
-                  { value: '7/8', label: '7/8' },
+                  { value: '9', label: '9' },
+                  { value: '8', label: '8' },
+                  { value: '6', label: '6' },
+                  { value: '4', label: '4' },
+                  { value: '2', label: '2' },
+                  { value: '1', label: '1' },
                  ]}
           />
       </div>

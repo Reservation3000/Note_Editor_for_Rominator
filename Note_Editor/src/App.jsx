@@ -1,32 +1,52 @@
-import { useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import './App.css'
-import { InsuranceFilled } from '@ant-design/icons';
-import { Divider } from 'antd';
+import { InsuranceFilled , DownloadOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 
 import { DrawerStyle }from './pages/notesSetting.jsx'
 import { InputeNoteValues , NotesList } from './pages/noteEditor.jsx'
-import { PlayButtom, TimmingControl, WhiceNoteType, LandSpaceControl} from './pages/timmingAndNoteEditor.jsx'
+import { PlayButton, TimmingControl, TimmingMsShow, WhiceNoteType, LandSpaceControl } from './pages/timmingAndNoteEditor.jsx'
 import { InputFiles, InputMusic , BaseEditor_Divider, InputBaseSetting, InputBaseSetting_noteValue, NoteSpeedControl}from './pages/baseEditor.jsx'
-
-
+import { Editor } from './pages/editorCanvas.jsx'
+import { handleDownloadChart } from './pages/header.jsx'
+import { CirclePreview } from './pages/circlePreview.jsx'
+import { NoteEditorProvider, useNoteEditorController } from './pages/noteEditorState.jsx'
 
 
 function App() {
 
-  const [noteType,setNoteType] = useState('note');
-  const [csvData,setCsvData] = useState([]);
+  const [musicDuration, setMusicDuration] = useState(0);
+  const [stop,setStop] = useState(true);
   const [startLand,setStartLand] = useState(0);
   const [chartOffest,setChartOffest] = useState(0);
   const [speed , setSpeed] = useState(0.06);
   const [beat , setBeat] = useState(4);
+  const [signature  , setSignature] = useState(4);
+  const [bpm , setBpm] = useState(120);
+  const [timmingControlValue , setTimmingControlValue] = useState(70);
+  const editorRef = useRef(null);
+  const editorConfig = useMemo(() => ({
+    bpm,
+    beat,
+    signature,
+    chartOffset: chartOffest,
+    musicDuration,
+    pixelsPerSecond: timmingControlValue,
+  }), [bpm, beat, signature, chartOffest, musicDuration, timmingControlValue]);
+  const noteEditor = useNoteEditorController(editorConfig);
+
 
   return (
+    <NoteEditorProvider value={noteEditor}>
     <>
     {/* ================================================================================ */}
         <div id="header">
           <InsuranceFilled style={{ fontSize:'2rem' , marginRight:'5px' }}/>
           <h1>ROMINATOR</h1>
           <h2> /   Note  Editor</h2>
+          <Button className="OutPuteButtom" type="primary" icon={<DownloadOutlined />} size={'large'} onClick={() => handleDownloadChart({ chartOffest, startLand, csvData: noteEditor.notes })}>
+            Download
+          </Button>
           <DrawerStyle/>
         </div>
 
@@ -42,27 +62,29 @@ function App() {
             {/*==========================================================================*/}
               <div id="noteEditor">
                 <div id="noteEditorContainerLeft">
-                  <NotesList csvData={csvData}/>
+                  <NotesList />
                 </div>
 
                 <div id="noteEditorContainerRight">
-                  <InputeNoteValues noteType={noteType}/>
+                  <InputeNoteValues />
                 </div>
               </div>
 
             {/*==========================================================================*/}
               <div id="timmingAndNoteEditor">
                 <div className="timmingAndNoteEditor_Contanier_Top">
-                  <PlayButtom/>
-                  <TimmingControl/>
+                  <PlayButton setStop={setStop} stop={stop}/>
+                  <TimmingControl editorRef={editorRef} timmingControlValue={timmingControlValue} musicDuration={musicDuration} />
                 </div>
 
                 <div className="timmingAndNoteEditor_Contanier_Middle">
-                  <WhiceNoteType noteType={noteType} setNoteType={setNoteType}/>
-                  <LandSpaceControl/>
+                  <WhiceNoteType noteType={noteEditor.noteType} setNoteType={noteEditor.setNoteType}/>
+                  <TimmingMsShow/>
+                  <LandSpaceControl timmingControlValue={timmingControlValue} setTimmingControlValue={setTimmingControlValue} />
                 </div>
 
                 <div className="timmingAndNoteEditor_Contanier_Buttom">
+                  <Editor editorRef={editorRef} />
                 </div>
                 
               </div>
@@ -79,14 +101,11 @@ function App() {
               <div id="baseEditor">
                 
                 <div id="baseEditorContainerLeft">
-                  <InputFiles setCsvData={setCsvData}
+                  <InputFiles setCsvData={noteEditor.replaceNotes}
                               setStartLand={setStartLand}
                               setChartOffest={setChartOffest}
                   /> 
-                  <InputMusic setCsvData={setCsvData}
-                              setStartLand={setStartLand}
-                              setChartOffest={setChartOffest}
-                  />
+                  <InputMusic setStop={setStop} stop={stop} setMusicDuration={setMusicDuration}/>
                   <p>In put your files.</p>
                 </div>
 
@@ -100,17 +119,21 @@ function App() {
                                     beat={beat}
                                     setChartOffest={setChartOffest} 
                                     setStartLand={setStartLand} 
-                                    setBeat={setBeat}/>
+                                    setBeat={setBeat}
+                                    setBpm={setBpm}
+                                    bpm={bpm}
+                  />
                 </div>
 
                 <div id="baseEditorContainerRight">
-                  <InputBaseSetting_noteValue/>
+                  <InputBaseSetting_noteValue setSignature={setSignature}/>
                   <NoteSpeedControl setSpeed={setSpeed} speed={speed}/>
                 </div>
               </div>
 
           {/*==========================================================================*/}
               <div id="circlePerview">
+                <CirclePreview csvData={noteEditor.notes} speed={speed} />
               </div>
 
             </div>
@@ -123,6 +146,7 @@ function App() {
           Copyright © 2026 Reservation All Rights Reserved.
         </div>
     </>
+    </NoteEditorProvider>
   )
 }
 
