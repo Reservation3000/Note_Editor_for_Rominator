@@ -1,3 +1,5 @@
+import { limitRange } from '../math.js';
+
 const NOTE_RUNTIME_DATA = {
   startPosition: 10,
   endPosition: 4,
@@ -5,19 +7,11 @@ const NOTE_RUNTIME_DATA = {
   notePosition: 5,
 };
 
-export const clampNumber = (value, min, max) => {
-  const number = Number(value);
-  const finiteValue = Number.isFinite(number) ? number : min;
-  return Math.max(min, Math.min(max, finiteValue));
-};
-
-export const clampInteger = (value, min, max) => Math.round(clampNumber(value, min, max));
-
 export const getNoteTime = (note) => (note.type === 'drag' ? note.timeStart : note.time);
 
 export const directionColor = (direction) => {
-  if (direction === 1) return 'rgb(255, 104, 104)';
-  if (direction === 0) return 'rgb(107, 189, 255)';
+  if (direction === 0) return 'rgb(255, 104, 104)';
+  if (direction === 1) return 'rgb(107, 189, 255)';
   return 'rgb(150, 150, 150)';
 };
 
@@ -32,14 +26,14 @@ export const snapTime = (time, config) => {
   const offsetMs = Number(config.chartOffset) || 0;
   const beatDurationMs = getBeatDuration(config);
   const snappedTime = offsetMs + Math.round((Number(time) - offsetMs) / beatDurationMs) * beatDurationMs;
-  return Math.round(clampNumber(snappedTime, 0, durationMs));
+  return limitRange(durationMs, 0, snappedTime);
 };
 
 export const createNoteData = (noteType, time, land, config) => {
   const durationMs = Math.max(0, Number(config.musicDuration) || 0);
   const beatDurationMs = getBeatDuration(config);
   const snappedTime = snapTime(time, config);
-  const safeLand = clampInteger(land, 1, 31);
+  const safeLand = limitRange(31, 0, land);
 
   if (noteType === 'drag') {
     const timeStart = Math.round(Math.min(snappedTime, Math.max(0, durationMs - beatDurationMs)));
@@ -128,19 +122,19 @@ export const createEditorTimeline = (config) => {
   const barDurationMs = beatDurationMs * signature;
   const width = (durationMs / 1000) * pixelsPerSecond;
   const height = 550;
-  const laneHeight = height / 31;
+  const laneHeight = height / 32;
 
   const timeToWidth = (time) => (Number(time) / 1000) * pixelsPerSecond;
-  const timeAtX = (x) => (width > 0 ? (clampNumber(x, 0, width) / width) * durationMs : 0);
+  const timeAtX = (x) => (width > 0 ? (limitRange(width, 0, x) / width) * durationMs : 0);
   const xToTime = (x) => snapTime(timeAtX(x), { musicDuration: durationMs, chartOffset, bpm, beat });
-  const landToY = (land) => (clampInteger(land, 1, 31) - 0.5) * laneHeight;
-  const yToLand = (y) => clampInteger(Math.round(Number(y) / laneHeight + 0.5), 1, 31);
+  const landToY = (land) => (limitRange(31, 0, land) + 0.5) * laneHeight;
+  const yToLand = (y) => limitRange(31, 0, Number(y) / laneHeight);
   const laneDragBound = (position) => ({
-    x: clampNumber(position.x, 0, width),
+    x: limitRange(width, 0, position.x),
     y: landToY(yToLand(position.y)),
   });
   const rotateDragBound = (position) => ({
-    x: timeToWidth(xToTime(clampNumber(position.x, 0, width))),
+    x: timeToWidth(xToTime(limitRange(width, 0, position.x))),
     y: 35,
   });
 
@@ -166,7 +160,7 @@ export const createEditorTimeline = (config) => {
     rotateDragBound,
     barIndices: Array.from({ length: Math.max(0, lastBarIndex - firstBarIndex + 1) }, (_, index) => firstBarIndex + index),
     beatIndices: Array.from({ length: Math.max(0, lastBeatIndex - firstBeatIndex + 1) }, (_, index) => firstBeatIndex + index),
-    laneLines: Array.from({ length: 32 }, (_, index) => index * laneHeight),
+    laneLines: Array.from({ length: 33 }, (_, index) => index * laneHeight),
   };
 };
 
@@ -178,6 +172,6 @@ export const widthToTime = (x, allWidth, musicDuration, chartOffset, beatDuratio
 };
 
 export const limitDragBound = (position, allWidth, laneHeight) => ({
-  x: clampNumber(position.x, 0, allWidth),
-  y: (clampInteger(Math.round(position.y / laneHeight + 0.5), 1, 31) - 0.5) * laneHeight,
+  x: limitRange(allWidth, 0, position.x),
+  y: (limitRange(31, 0, position.y / laneHeight) + 0.5) * laneHeight,
 });

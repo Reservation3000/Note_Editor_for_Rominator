@@ -2,7 +2,9 @@ import { createContext, useContext, useEffect, useEffectEvent, useMemo, useState
 import { Stage, Layer, Line, Text, Circle, Group, RegularPolygon } from 'react-konva';
 import { musicTimeZ } from '../store';
 import { useNoteEditor } from './noteEditorState.jsx';
-import { clampInteger, clampNumber, createEditorTimeline, directionColor } from './noteEditorModel.js';
+import { createEditorTimeline, directionColor } from './noteEditorModel.js';
+import { limitRange } from '../math.js';
+import { useRef } from 'react';
 
 const ROTATE_TRACK_HEIGHT = 70;
 const EditorViewContext = createContext(null);
@@ -33,6 +35,7 @@ export const ScrollMarker = (editorRef, markerX) => {
 const TimelineGuides = ({ height, showLanes = false }) => {
   const { timeline } = useEditorView();
   const { width, chartOffset, barDurationMs, beatDurationMs, barIndices, beatIndices, laneLines, timeToWidth } = timeline;
+  const laneHeight = height / 32;
 
   return (
     <>
@@ -42,6 +45,19 @@ const TimelineGuides = ({ height, showLanes = false }) => {
           points={[0, y, width, y]}
           stroke="rgb(90, 96, 83)"
           strokeWidth={1}
+          listening={false}
+        />
+      ))}
+      {showLanes && Array.from({ length: 32 }, (_, laneIndex) => (
+        <Text
+          key={`lane-label-${laneIndex}`}
+          x={4}
+          y={(laneIndex + 0.5) * laneHeight - 7}
+          width={22}
+          text={String(laneIndex)}
+          fontSize={11}
+          fill="rgb(220, 220, 220)"
+          align="center"
           listening={false}
         />
       ))}
@@ -201,12 +217,11 @@ const RotateEvents = () => {
 
 const TimeRuler = () => {
   const { timeline } = useEditorView();
-  const musicSeek = musicTimeZ((state) => state.musicSeek);
+  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
 
   const seekToBar = (index) => {
-    const time = clampInteger(index * timeline.barDurationMs, 0, timeline.durationMs);
-    musicSeek(time);
-    musicTimeZ.getState().setMusicTime(time);
+    const time = limitRange(timeline.durationMs, 0, index * timeline.barDurationMs);
+    setMusicSeek(time);
   };
 
   return (
@@ -233,9 +248,9 @@ const Playhead = () => {
   const { timeline, editorRef } = useEditorView();
   const [isDragging, setIsDragging] = useState(false);
   const [previewTime, setPreviewTime] = useState(null);
-  const musicTime = musicTimeZ((state) => state.musicTime);
   const musicSeek = musicTimeZ((state) => state.musicSeek);
-  const currentTime = previewTime ?? musicTime;
+  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
+  const currentTime = previewTime ?? musicSeek;
   const playheadX = timeline.timeToWidth(currentTime);
   const reportPosition = useEffectEvent((position) => ScrollMarker(editorRef, position));
 
@@ -244,9 +259,8 @@ const Playhead = () => {
   }, [isDragging, playheadX]);
 
   const seekToTime = (time) => {
-    const boundedTime = clampInteger(time, 0, timeline.durationMs);
-    musicSeek(boundedTime);
-    musicTimeZ.getState().setMusicTime(boundedTime);
+    const boundedTime = limitRange(timeline.durationMs, 0, time);
+    setMusicSeek(boundedTime);
     setPreviewTime(null);
   };
 
@@ -256,7 +270,7 @@ const Playhead = () => {
         x={playheadX}
         draggable
         onDragStart={() => setIsDragging(true)}
-        dragBoundFunc={(position) => ({ x: clampNumber(position.x, 0, timeline.width), y: 0 })}
+        dragBoundFunc={(position) => ({ x: limitRange(timeline.width, 0, position.x), y: 0 })}
         onDragMove={(event) => setPreviewTime(timeline.timeAtX(event.target.x()))}
         onDragEnd={(event) => {
           seekToTime(timeline.timeAtX(event.target.x()));
@@ -318,7 +332,9 @@ const RotateTrack = () => {
   );
 };
 
-export const Editor = ({ editorRef }) => {
+export const Editor = () => {
+
+  const editorRef = useRef(null);
   const { config } = useNoteEditor();
   const timeline = useMemo(() => createEditorTimeline(config), [config]);
   const view = useMemo(() => ({ timeline, editorRef }), [timeline, editorRef]);

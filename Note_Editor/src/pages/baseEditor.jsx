@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Divider , Select , Slider } from 'antd';
-import { DataGet , MusicController , MusicChose } from './control.jsx'
+import { DataGet , MusicChose } from './control.jsx'
 import { UseInputAndDescribe} from "../hook";
 import { CustomerServiceFilled , ContainerFilled } from '@ant-design/icons';
 
@@ -15,7 +15,7 @@ export const InputFiles = ({ setCsvData , setStartLand , setChartOffest }) => {
     if (!file) return;
 
     setFileName(file.name);  //在畫面中顯示檔名
-    await DataGet(file, setCsvData, setStartLand, setChartOffest);
+    await DataGet(file, setCsvData, setStartLand, setChartOffest); // 存入資料
   };
   
   return(
@@ -35,12 +35,9 @@ export const InputFiles = ({ setCsvData , setStartLand , setChartOffest }) => {
   );
 }
 
-export const InputMusic = ({ setStop, stop , setMusicDuration }) => {
+export const InputMusic = ({ setMusicUrl , setStop, setMusicDuration }) => {
 
   const [fileName, setFileName] = useState('');
-  const [musicUrl,setMusicUrl] = useState('');
-
-  MusicController(musicUrl, setStop, stop, setMusicDuration);
 
   const handleFileChange = async (e) => {
     MusicChose( e , setStop , setFileName , setMusicUrl, setMusicDuration ); 
@@ -76,7 +73,7 @@ export const InputBaseSetting = ({ chartOffest , startLand , beat , bpm , setCha
     <>
       <UseInputAndDescribe describe="bpm" inputValue={bpm} setValue={setBpm} min={1} max={300}/>
       <UseInputAndDescribe describe="offest(ms)" inputValue={chartOffest} setValue={setChartOffest} min={-10000} max={10000}/>
-      <UseInputAndDescribe describe="start land" inputValue={startLand} setValue={setStartLand} />
+      <UseInputAndDescribe describe="start land" inputValue={startLand} setValue={setStartLand} min={0} max={31}/>
       <UseInputAndDescribe describe="分音符一拍" inputValue={beat} setValue={setBeat} min={1} max={64}/>
     </>
   );
@@ -84,10 +81,7 @@ export const InputBaseSetting = ({ chartOffest , startLand , beat , bpm , setCha
 
 export const InputBaseSetting_noteValue = ({ setSignature }) => {
 
-
-  const handleChange = (value) => {
-        setSignature(value);  
-    };
+  const handleChange = (value) => { setSignature(value);  };
 
   return(
     <>
@@ -114,7 +108,7 @@ export const InputBaseSetting_noteValue = ({ setSignature }) => {
 
 export const NoteSpeedControl = ({setSpeed , speed}) => {
 
-  const onChange = newValue => {
+  const handleChange = newValue => {
     setSpeed(newValue);
   };
 
@@ -128,7 +122,7 @@ export const NoteSpeedControl = ({setSpeed , speed}) => {
                 min={0.01}
                 max={0.1}
                 step={0.01}
-                onChange={onChange}
+                onChange={handleChange}
                 value={speed}
             />
         </div>

@@ -12,6 +12,7 @@ import {
 import { Divider, Select } from 'antd';
 import { useNoteEditor } from './noteEditorState.jsx';
 import { createNoteUpdates, getNoteFormValues, getNoteTime } from './noteEditorModel.js';
+import { musicTimeZ } from '../store';
 
 const DirectionInput = ({ value, onChange }) => (
   <div className="inputeNoteValue_RotateType">
@@ -127,9 +128,15 @@ const formatNote = (note) => {
 // The list is sorted for reading, while each row keeps its original editor index.
 export const NotesList = () => {
   const { notes, selectedIndex, selectNote } = useNoteEditor();
+  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
   const sortedNotes = notes
     .map((note, index) => ({ note, index }))
     .sort((first, second) => getNoteTime(first.note) - getNoteTime(second.note) || first.index - second.index);
+
+  const handleOnClick = (note, index) => {
+    selectNote(index);
+    setMusicSeek(getNoteTime(note));
+  };
 
   return (
     <div className={`notesList${!notes.length ? ' notesListEmpty' : ''}`}>
@@ -140,7 +147,7 @@ export const NotesList = () => {
           type="button"
           className={selectedIndex === index ? 'notesListRow notesListRowSelected' : 'notesListRow'}
           key={`${note.type}-${index}`}
-          onClick={() => selectNote(index)}
+          onClick={() => handleOnClick(note, index)}
         >
           {NOTE_ICONS[note.type]}
           <span className="notesListText">{formatNote(note)}</span>

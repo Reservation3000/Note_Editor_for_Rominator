@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Howl } from 'howler';
 import hitSoundUrl from '../assets/hit.wav';
 import { musicTimeZ } from '../store';
+import { formatTime } from '../math.js';
 
-const SIZE = 320;
-const CENTER = SIZE / 2;
+const diameter = 320;
+const radius = diameter / 2;
 const OUTER_RADIUS = 200;
-const INNER_RADIUS = 38;
+const INNER_RADIUS = 60;
 const GAME_START_POSITION = 4.9;
 const GAME_END_POSITION = 1.25;
 const LAND_COUNT = 32;
@@ -39,20 +40,13 @@ const getPreviewEvents = (csvData) => csvData.flatMap((note, noteIndex) => {
   }];
 });
 
-const formatTime = (timeMs) => {
-  const totalSeconds = Math.floor(Math.max(0, timeMs) / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-};
-
 export const CirclePreview = ({ csvData, speed }) => {
-  const musicTime = musicTimeZ((state) => state.musicTime);
+  const musicSeek = musicTimeZ((state) => state.musicSeek);
   const pixelsPerFrame = Math.max(Number(speed) || 0.06, 0.001);
   const travelDuration = ((GAME_START_POSITION - GAME_END_POSITION) / pixelsPerFrame) * (1000 / 60);
   const previewEvents = useMemo(() => getPreviewEvents(csvData), [csvData]);
   const hitSoundRef = useRef(null);
-  const previousMusicTimeRef = useRef(musicTime);
+  const previousMusicTimeRef = useRef(musicSeek);
 
   useEffect(() => {
     const hitSound = new Howl({ src: [hitSoundUrl], volume: 0.35, preload: true });
@@ -66,32 +60,32 @@ export const CirclePreview = ({ csvData, speed }) => {
 
   useEffect(() => {
     const previousTime = previousMusicTimeRef.current;
-    previousMusicTimeRef.current = musicTime;
-    if (musicTime <= previousTime || !hitSoundRef.current) return;
+    previousMusicTimeRef.current = musicSeek;
+    if (musicSeek <= previousTime || !hitSoundRef.current) return;
 
     previewEvents.forEach((event) => {
-      if (event.triggerTime > previousTime && event.triggerTime <= musicTime) {
+      if (event.triggerTime > previousTime && event.triggerTime <= musicSeek) {
         hitSoundRef.current.play();
       }
     });
-  }, [musicTime, previewEvents]);
+  }, [musicSeek, previewEvents]);
 
   return (
     <div className="circlePreviewContent">
       <header className="circlePreviewHeader">
         <h3>GAME PREVIEW</h3>
-        <span>{formatTime(musicTime)}</span>
+        <span>{formatTime(musicSeek)}</span>
       </header>
 
       <svg
         className="circlePreviewArena"
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        viewBox={`0 0 ${diameter} ${diameter}`}
         role="img"
         aria-label="Music-synchronized circular gameplay preview"
       >
-        <circle cx={CENTER} cy={CENTER} r={OUTER_RADIUS + 5} fill="#0b100c" stroke="#45553e" strokeWidth="1.5" />
-        <circle cx={CENTER} cy={CENTER} r={INNER_RADIUS} fill="#0b100c" stroke="#bada55" strokeWidth="2" />
-        <circle cx={CENTER} cy={CENTER} r={INNER_RADIUS + 7} className="circlePreviewHitRing" />
+        <circle cx={radius} cy={radius} r={OUTER_RADIUS + 5} fill="#0b100c" stroke="#45553e" strokeWidth="1.5" />
+        <circle cx={radius} cy={radius} r={INNER_RADIUS} fill="#0b100c" stroke="#bada55" strokeWidth="2" />
+        <circle cx={radius} cy={radius} r={INNER_RADIUS + 7} className="circlePreviewHitRing" />
 
         {Array.from({ length: LAND_COUNT }, (_, landIndex) => {
           const angle = -(landIndex / LAND_COUNT) * Math.PI * 2;
@@ -100,10 +94,10 @@ export const CirclePreview = ({ csvData, speed }) => {
             <line
               key={`lane-${landIndex}`}
               className={`circlePreviewLane${isMajor ? ' circlePreviewMajorLane' : ''}`}
-              x1={CENTER + Math.cos(angle) * (INNER_RADIUS + 8)}
-              y1={CENTER + Math.sin(angle) * (INNER_RADIUS + 8)}
-              x2={CENTER + Math.cos(angle) * OUTER_RADIUS}
-              y2={CENTER + Math.sin(angle) * OUTER_RADIUS}
+              x1={radius + Math.cos(angle) * (INNER_RADIUS + 8)}
+              y1={radius + Math.sin(angle) * (INNER_RADIUS + 8)}
+              x2={radius + Math.cos(angle) * OUTER_RADIUS}
+              y2={radius + Math.sin(angle) * OUTER_RADIUS}
             />
           );
         })}
@@ -115,8 +109,8 @@ export const CirclePreview = ({ csvData, speed }) => {
             <text
               key={`lane-number-${landIndex}`}
               className="circlePreviewLaneNumber"
-              x={CENTER + Math.cos(angle) * labelRadius}
-              y={CENTER + Math.sin(angle) * labelRadius}
+              x={radius + Math.cos(angle) * labelRadius}
+              y={radius + Math.sin(angle) * labelRadius}
             >
               {landIndex}
             </text>
@@ -124,11 +118,11 @@ export const CirclePreview = ({ csvData, speed }) => {
         })}
 
         {previewEvents.map((event) => {
-          const elapsed = musicTime - (event.triggerTime - travelDuration);
+          const elapsed = musicSeek - (event.triggerTime - travelDuration);
           if (elapsed < 0 || elapsed >= travelDuration) return null;
 
           const progress = elapsed / travelDuration;
-          const radius = OUTER_RADIUS - progress * (OUTER_RADIUS - INNER_RADIUS - 8);
+          const noteRadius = OUTER_RADIUS - progress * (OUTER_RADIUS - INNER_RADIUS - 8);
           const landPosition = ((event.land ?? 0) % LAND_COUNT + LAND_COUNT) % LAND_COUNT;
           const angle = -(landPosition / LAND_COUNT) * 360;
           const color = event.type === 'note' || event.type === 'drag'
@@ -139,9 +133,9 @@ export const CirclePreview = ({ csvData, speed }) => {
             return (
               <circle
                 key={event.key}
-                cx={CENTER}
-                cy={CENTER}
-                r={radius}
+                cx={radius}
+                cy={radius}
+                r={noteRadius}
                 fill="none"
                 stroke={color}
                 strokeWidth="1.5"
@@ -150,26 +144,26 @@ export const CirclePreview = ({ csvData, speed }) => {
             );
           }
 
-          const circumference = Math.PI * 2 * radius;
-          const arcLength = radius * ARC_ANGLE;
+          const circumference = Math.PI * 2 * noteRadius;
+          const arcLength = noteRadius * ARC_ANGLE;
           return (
             <circle
               key={event.key}
-              cx={CENTER}
-              cy={CENTER}
-              r={radius}
+              cx={radius}
+              cy={radius}
+              r={noteRadius}
               fill="none"
               stroke={color}
               strokeWidth= '1.5'
               strokeLinecap="round"
               strokeDasharray={`${arcLength} ${circumference - arcLength}`}
-              transform={`rotate(${angle} ${CENTER} ${CENTER})`}
+              transform={`rotate(${angle} ${radius} ${radius})`}
               opacity="0.95"
             />
           );
         })}
 
-        <text x={CENTER} y={CENTER} className="circlePreviewTime">{formatTime(musicTime)}</text>
+        <text x={radius} y={radius} className="circlePreviewTime">{Math.floor(musicSeek)}</text>
       </svg>
     </div>
   );

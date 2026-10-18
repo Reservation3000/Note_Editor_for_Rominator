@@ -564,12 +564,6 @@ p.p2{
   color: #d8e1d2;
 }
 
-.circlePreviewHeader span {
-  color: #9eae98;
-  font-family: "PixelOperator";
-  font-size: 14px;
-}
-
 .circlePreviewArena {
   display: block;
   width: min(100%, 390px);
@@ -593,9 +587,8 @@ p.p2{
 }
 
 .circlePreviewLaneNumber {
-  fill: #d8e1d2;
-  font-family: "PixelOperator";
-  font-size: 8px;
+  fill: #696d66;
+  font-size: 12px;
   text-anchor: middle;
   dominant-baseline: central;
 }
@@ -609,8 +602,7 @@ p.p2{
 
 .circlePreviewTime {
   fill: #e4ebdf;
-  font-family: "PixelOperator";
-  font-size: 13px;
+  font-size: 10px;
   text-anchor: middle;
   dominant-baseline: central;
 }

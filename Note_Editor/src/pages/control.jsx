@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Papa from 'papaparse';
-import { Howl } from 'howler';
 import { musicTimeZ } from '../store';
+
+import { limitRange , formatTime } from '../math.js'
+import { Howl } from 'howler';
 
 // csv data===========================================================================
 function dataProcessing( textData ){
@@ -92,62 +94,87 @@ export async function DataGet( file, setCsvData , setStartLand , setChartOffest 
     }
 
 }
-
+  
 // music===============================================================================
-export function MusicController( musicUrl, setStop, stop, setMusicDuration){
-  const soundRef = useRef(null);
+
+export function MusicPlay( setStop , setMusicDuration , musicUrl , stop ){
+  
+  const musicSeek = musicTimeZ((state) => state.musicSeek); 
+  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek); 
+
+  const formattedTime = formatTime(musicSeek);
+
+  const musicRef = useRef(null); 
+  const rAFRef = useRef(null);         
+  const isDraggingRef = useRef(false); 
 
   useEffect(() => {
-    if (!musicUrl) return undefined;
+    if (!musicUrl) {
+      setMusicDuration(0);
+    }
 
-    let animationFrameId;
-    const sound = new Howl({
+    const music = new Howl({
       src: [musicUrl],
       format: ['mp3'],
       html5: false,
-      autoplay: false,
-      onload: () => setMusicDuration(sound.duration() * 1000),
-      onend: () => {
-        musicTimeZ.getState().setMusicTime(sound.duration() * 1000);
-        setStop(true);
-      },
+      preload: true,
+      onload: () => { setMusicDuration(music.duration() * 1000); },
       onloaderror: (_id, error) => console.error('music load error:', error),
     });
-    soundRef.current = sound;
 
+    musicRef.current = music;
 
-    const updateTime = () => {
-      if (sound.playing()) {
-        musicTimeZ.getState().setMusicTime(sound.seek() * 1000);
-      }
-      animationFrameId = requestAnimationFrame(updateTime);
-    };
-
-    updateTime(); // 觸發循環
-
-    musicTimeZ.getState().setMusicSeek((timeMs) => sound.seek(timeMs / 1000));
-
+    // 組件卸載時清除
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      sound.unload();
-      soundRef.current = null;
-      URL.revokeObjectURL(musicUrl);
-      setMusicDuration(0);
-      musicTimeZ.getState().setMusicTime(0);
-      musicTimeZ.getState().setMusicSeek(() => {});
+      music.unload();  
+      musicRef.current = null;
     };
-  }, [musicUrl, setStop, setMusicDuration]);
+  }, [musicUrl, setMusicDuration]);
 
   useEffect(() => {
-    const sound = soundRef.current;
-    if (!sound || !musicUrl) return;
+    if (!musicRef.current) return;
 
-    if (stop && sound.playing()) {
-      sound.pause();
-    } else if (!stop && !sound.playing()) {
-      sound.play();
+    if (stop) {
+      musicRef.current.pause();
+    } else {
+      musicRef.current.play();
     }
-  }, [musicUrl, stop]);
+  }, [stop]);
+
+  useEffect(() => {
+    const updateProgress = () => {
+
+      if (musicRef.current.playing() && !isDraggingRef.current) {
+        setMusicSeek(musicRef.current.seek() * 1000);
+      }
+      rAFRef.current = requestAnimationFrame(updateProgress);
+    };
+
+    rAFRef.current = requestAnimationFrame(updateProgress);
+
+    // 組件卸載時清除
+    return () => { 
+      cancelAnimationFrame(rAFRef.current); 
+    };
+  }, [setMusicSeek]); 
+
+  // 拖曳中
+  const handleSliderChange = (newValue) => {
+    isDraggingRef.current = true; // 上鎖：阻斷 rAF
+    setMusicSeek(newValue);       // 畫面立即跟著滑鼠走
+    setStop(true);               // 拖曳時暫停音樂
+  };
+
+  // 拖曳結束
+  const handleSliderAfterChange = (newValue) => {
+    if (musicRef.current) {
+      musicRef.current.seek(newValue / 1000); // 真正改變音軌
+    }
+    isDraggingRef.current = false; // 解鎖：把控制權還給 rAF    
+    setStop(false); // 拖曳結束後恢復撥放
+  };
+
+  return { handleSliderChange, handleSliderAfterChange, formattedTime, musicSeek };
 
 }
 
@@ -157,7 +184,6 @@ export function MusicChose( e , setStop , setFileName , setMusicUrl, setMusicDur
     if (!file) return;
 
     setStop(true);        // 暫停狀態
-    musicTimeZ.getState().setMusicTime(0);
     setMusicDuration(0);
     setFileName(file.name);  //在畫面中顯示檔名
     const url = URL.createObjectURL(file); //記憶體中存入一個臨時的本地音樂網址
@@ -166,35 +192,37 @@ export function MusicChose( e , setStop , setFileName , setMusicUrl, setMusicDur
 
 }
 
-export function MusicTimeInput(){
-  const musicTime = musicTimeZ((state) => state.musicTime);
-  const duration = musicTimeZ((state) => state.musicDuration);
+export function MusicTimeInput( musicDuration ){
+
   const musicSeek = musicTimeZ((state) => state.musicSeek);
-  const [inputTime, setInputTime] = useState(Math.floor(musicTime));
-  const isEditingRef = useRef(false);
+  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
+
+  const [inputTime, setInputTime] = useState(Math.floor(musicSeek)); // 輸入的數值
+  const isEditingRef = useRef(false); //是否正在輸入
 
   useEffect(() => {
-    if (!isEditingRef.current) setInputTime(Math.floor(musicTime));
-  }, [musicTime]);
+    if (!isEditingRef.current) setInputTime(Math.floor(musicSeek));
+  }, [musicSeek]);
 
-  const startEditing = () => {
+  const handleOnFocus = () => {
     isEditingRef.current = true;
   };
 
   const seekToInputTime = () => {
     isEditingRef.current = false;
 
+    // 如果沒有輸入東西，或輸入的不是有效數字，則時間返回現在撥放的時間
     if (inputTime === null || !Number.isFinite(inputTime)) {
-      setInputTime(Math.floor(musicTimeZ.getState().musicTime));
+      setInputTime(Math.floor(musicTimeZ.getState().musicSeek));
       return;
+    } 
+    else {
+      const time = limitRange( musicDuration, 0, inputTime );
+      setMusicSeek(time);
+      setInputTime(time);
     }
-
-    const time = Math.floor(Math.min(Math.max(inputTime, 0), duration));
-    musicSeek(time);
-    musicTimeZ.getState().setMusicTime(time);
-    setInputTime(time);
   };
 
-  return { duration, inputTime, seekToInputTime, setInputTime, startEditing };
+  return { inputTime, handleOnFocus, seekToInputTime, setInputTime };
 }
 

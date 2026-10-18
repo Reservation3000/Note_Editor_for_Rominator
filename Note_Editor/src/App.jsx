@@ -1,9 +1,9 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import './App.css'
 import { InsuranceFilled , DownloadOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 
-import { DrawerStyle }from './pages/notesSetting.jsx'
+import { DrawerStyle }from './pages/setting.jsx'
 import { InputeNoteValues , NotesList } from './pages/noteEditor.jsx'
 import { PlayButton, TimmingControl, TimmingMsShow, WhiceNoteType, LandSpaceControl } from './pages/timmingAndNoteEditor.jsx'
 import { InputFiles, InputMusic , BaseEditor_Divider, InputBaseSetting, InputBaseSetting_noteValue, NoteSpeedControl}from './pages/baseEditor.jsx'
@@ -15,6 +15,7 @@ import { NoteEditorProvider, useNoteEditorController } from './pages/noteEditorS
 
 function App() {
 
+  const [musicUrl , setMusicUrl] = useState('');
   const [musicDuration, setMusicDuration] = useState(0);
   const [stop,setStop] = useState(true);
   const [startLand,setStartLand] = useState(0);
@@ -24,7 +25,6 @@ function App() {
   const [signature  , setSignature] = useState(4);
   const [bpm , setBpm] = useState(120);
   const [timmingControlValue , setTimmingControlValue] = useState(70);
-  const editorRef = useRef(null);
   const editorConfig = useMemo(() => ({
     bpm,
     beat,
@@ -74,17 +74,17 @@ function App() {
               <div id="timmingAndNoteEditor">
                 <div className="timmingAndNoteEditor_Contanier_Top">
                   <PlayButton setStop={setStop} stop={stop}/>
-                  <TimmingControl editorRef={editorRef} timmingControlValue={timmingControlValue} musicDuration={musicDuration} />
+                  <TimmingControl musicDuration={musicDuration} musicUrl={musicUrl} setMusicDuration={setMusicDuration} setStop={setStop} stop={stop} />
                 </div>
 
                 <div className="timmingAndNoteEditor_Contanier_Middle">
                   <WhiceNoteType noteType={noteEditor.noteType} setNoteType={noteEditor.setNoteType}/>
-                  <TimmingMsShow/>
+                  <TimmingMsShow musicDuration={musicDuration} />
                   <LandSpaceControl timmingControlValue={timmingControlValue} setTimmingControlValue={setTimmingControlValue} />
                 </div>
 
                 <div className="timmingAndNoteEditor_Contanier_Buttom">
-                  <Editor editorRef={editorRef} />
+                  <Editor />
                 </div>
                 
               </div>
@@ -105,7 +105,7 @@ function App() {
                               setStartLand={setStartLand}
                               setChartOffest={setChartOffest}
                   /> 
-                  <InputMusic setStop={setStop} stop={stop} setMusicDuration={setMusicDuration}/>
+                  <InputMusic setMusicUrl={setMusicUrl} setStop={setStop} stop={stop} setMusicDuration={setMusicDuration}/>
                   <p>In put your files.</p>
                 </div>
 
