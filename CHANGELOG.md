@@ -85,3 +85,20 @@
 
 ### Changed
 - rotateType = 1 逆時針 ， = 0 順時針
+
+### Added
+
+### Removed
+
+
+--
+
+
+# 2026-10-22<editor_write_by_my_self>
+
+### Changed
+
+### Added
+- editor資料夾 => to write editor by my self
+
+### Removed

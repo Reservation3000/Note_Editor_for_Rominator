@@ -12,6 +12,8 @@ import { handleDownloadChart } from './pages/header.jsx'
 import { CirclePreview } from './pages/circlePreview.jsx'
 import { NoteEditorProvider, useNoteEditorController } from './pages/noteEditorState.jsx'
 
+import { Editor as RhythmEditor } from './pages/editor/rhythm_Line_Drawing.jsx'
+
 
 function App() {
 
@@ -24,15 +26,15 @@ function App() {
   const [beat , setBeat] = useState(4);
   const [signature  , setSignature] = useState(4);
   const [bpm , setBpm] = useState(120);
-  const [timmingControlValue , setTimmingControlValue] = useState(70);
+  const [aBeatPx , setABeatPx] = useState(70);
   const editorConfig = useMemo(() => ({
     bpm,
     beat,
     signature,
     chartOffset: chartOffest,
     musicDuration,
-    pixelsPerSecond: timmingControlValue,
-  }), [bpm, beat, signature, chartOffest, musicDuration, timmingControlValue]);
+    pixelsPerSecond: speed,
+  }), [bpm, beat, signature, chartOffest, musicDuration, speed]);
   const noteEditor = useNoteEditorController(editorConfig);
 
 
@@ -80,11 +82,12 @@ function App() {
                 <div className="timmingAndNoteEditor_Contanier_Middle">
                   <WhiceNoteType noteType={noteEditor.noteType} setNoteType={noteEditor.setNoteType}/>
                   <TimmingMsShow musicDuration={musicDuration} />
-                  <LandSpaceControl timmingControlValue={timmingControlValue} setTimmingControlValue={setTimmingControlValue} />
+                  <LandSpaceControl setABeatPx={setABeatPx} aBeatPx={aBeatPx} />
                 </div>
 
                 <div className="timmingAndNoteEditor_Contanier_Buttom">
-                  <Editor />
+                  {/* <Editor /> */}
+                  <RhythmEditor musicDuration={musicDuration} bpm={bpm} beat={beat} signature={signature} aBeatPx={aBeatPx}/>
                 </div>
                 
               </div>
@@ -133,7 +136,7 @@ function App() {
 
           {/*==========================================================================*/}
               <div id="circlePerview">
-                <CirclePreview csvData={noteEditor.notes} speed={speed} />
+                {/* <CirclePreview csvData={noteEditor.notes} speed={speed} /> */}
               </div>
 
             </div>
@@ -151,5 +154,3 @@ function App() {
 }
 
 export default App
-
-

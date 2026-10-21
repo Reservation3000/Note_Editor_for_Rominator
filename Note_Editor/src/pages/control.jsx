@@ -85,9 +85,11 @@ export async function DataGet( file, setCsvData , setStartLand , setChartOffest 
       console.log(dataProcessing(textData));
 
       // 把三個變數資料存進state
-      setCsvData(processedChart);                                     // 譜面
-      setStartLand(Number.isFinite(startLand) ? startLand : 0);       // 第一條軌道
-      setChartOffest(Number.isFinite(chartOffset) ? chartOffset : 0); // 偏移
+      setCsvData(processedChart);   // 譜面
+      setStartLand(startLand);      // 第一條軌道
+      setChartOffest(chartOffset ); // 偏移
+
+      console.log('csv data:', processedChart);
 
     } catch (error) {
       console.error('get file error:', error);

@@ -86,18 +86,18 @@ export const WhiceNoteType =({ noteType , setNoteType }) =>{
 }
 
 // 縮放軌道上下間距的滑條=================================================
-export const LandSpaceControl = ({ timmingControlValue , setTimmingControlValue }) => {
+export const LandSpaceControl = ({ setABeatPx , aBeatPx }) => {
 
   const onChange = (value) => {
-    setTimmingControlValue(value);
+    setABeatPx(value);
   }
 
   const add = () => {
-    setTimmingControlValue(prev => Math.min(prev + 5, 150));
+    setABeatPx(prev => Math.min(prev + 5, 50));
   }
 
   const reduce = () => {
-    setTimmingControlValue(prev => Math.max(prev - 5, 20));
+    setABeatPx(prev => Math.max(prev - 5, 10));
   }
 
   return (
@@ -113,9 +113,9 @@ export const LandSpaceControl = ({ timmingControlValue , setTimmingControlValue 
       <Slider
         className='landSpaceControl_Slider'
         keyboard
-        min={20}
-        max={200}
-        value={timmingControlValue}
+        min={10}
+        max={50}
+        value={aBeatPx}
         onChange={onChange}
       />
     </div>
