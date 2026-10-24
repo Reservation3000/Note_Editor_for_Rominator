@@ -1,7 +1,9 @@
 
-import { Stage, Layer, Line, Text } from 'react-konva';
+import { Group, Stage, Layer, Line, Text, RegularPolygon } from 'react-konva';
 import { EditorProvider, UseRhythm } from './editorContext.jsx';
-
+import { limitRange, widthToTime, timeToWidth } from '../../math.js';
+import { musicTimeZ } from '../../store.js';
+import { useState } from 'react';
 
 // 時間尺
 const TimeRuler = () => {
@@ -29,6 +31,69 @@ const TimeRuler = () => {
             <Text text="0" x={0} y={14} fontSize={11}  fill="white" draggable/>
           </Layer>
         </Stage>
+  );
+}
+
+// 時間標記
+const TimmingMarker = ({ musicRef }) => {
+
+  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek); // 訂閱音樂時間
+  const musicSeek = musicTimeZ((state) => state.musicSeek);
+  const [isHover , setIsHover] = useState(false);  // 是否璇停
+
+  const { 
+    musicPx, //整首歌有幾像素
+    musicDuration, //整首歌有幾毫秒
+    // howManyBar, //有多少小節(非整除)
+    // aBarDuration, //一小節幾毫秒
+    // beatPx,   //每毫秒走幾像素
+    // howManyBeat, //有多少拍(非整除)
+    // aBeatDuration, //一拍幾毫秒
+  } = UseRhythm();
+  const [isDragging, setIsDragging] = useState(false);
+
+  const TRACK_HEIGHT = 590; // 軌道高度
+  const limitX = (x) => { return limitRange(musicPx, 0, x); }  //限制移動範圍在0~musicPx之間
+
+  const positionX = timeToWidth(musicSeek, musicDuration, musicPx); // 計算位置
+  console.log(positionX);
+
+  const handleStart = (event) => {
+    setIsDragging(true);
+    const time = Math.floor(widthToTime(musicPx, musicDuration)(event.target.x()));
+    setMusicSeek(time);
+  }
+ 
+  const handleMove = (event) => {
+    if (isDragging) {
+      const time = Math.floor(widthToTime(musicPx, musicDuration)(event.target.x()));
+      setMusicSeek(time);
+    }
+  }
+
+   const handleEnd = () => {
+    setIsDragging(false);
+  }
+
+  return (
+    <Stage width={musicPx} height={TRACK_HEIGHT} >
+      <Layer>
+        <Group x={positionX}      // 位置
+               draggable  // 啟用拖曳
+               dragBoundFunc={(position) => ({ x: limitX(position.x) , y: 0 })}  // 限制拖曳範圍
+               onDragStart={handleStart}
+               onDragMove={handleMove}
+               onDragEnd={handleEnd}
+               onMouseEnter={() => setIsHover(true)}
+               onMouseLeave={() => setIsHover(false)}
+        >
+
+            <Line points={[0, 0, 0, TRACK_HEIGHT]} stroke={isHover ? "rgb(255, 243, 82)" : "white"} strokeWidth={2} />
+            <RegularPolygon x={0} y={4} sides={3} radius={8} rotation={180} fill={isHover ? "rgb(255, 243, 82)" : "white"} />
+
+          </Group>
+        </Layer>
+      </Stage>
   );
 }
 
@@ -99,15 +164,23 @@ const RotateRhythmLineDrawing = () => {
   );
 }
 
-export const Editor = ({ musicDuration, bpm, beat, signature, aBeatPx }) => (
-  <EditorProvider musicDuration={musicDuration}
-                  bpm={bpm}
-                  beat={beat}
-                  signature={signature}
-                  aBeatPx={aBeatPx}
+export const Editor = ({ musicDuration, bpm, beat, signature, aBeatPx, musicRef }) => (
+  <EditorProvider
+    musicDuration={musicDuration}
+    bpm={bpm}
+    beat={beat}
+    signature={signature}
+    aBeatPx={aBeatPx}
   >
     <TimeRuler />
-    <RhythmLineDrawing />
-    <RotateRhythmLineDrawing/>
+
+    <div style={{ position: 'relative' }}>
+      <RhythmLineDrawing />
+      <div style={{position:'absolute', inset:0 , zIndex:1}} >
+        <TimmingMarker musicRef={musicRef}/>
+      </div>
+    </div>
+
+    <RotateRhythmLineDrawing />
   </EditorProvider>
 );

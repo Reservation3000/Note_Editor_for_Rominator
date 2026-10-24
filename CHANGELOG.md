@@ -1,4 +1,4 @@
-# 2026-10-07
+# 2026-10-07<main>
 
 ### Changed
 
@@ -12,7 +12,7 @@
 ---
 
 
-# 2026-10-08
+# 2026-10-08<main>
 
 ### Changed
 - Finish base framework.
@@ -26,7 +26,7 @@
 ---
 
 
-# 2026-10-09
+# 2026-10-09<main>
 
 ### Changed
 - pages 【components】=> drawerSetting / timmingAndNoteEditor
@@ -42,7 +42,7 @@
 ---
 
 
-# 2026-10-11
+# 2026-10-11<main>
 
 ### Changed
 - Tidying up【App.jsx】
@@ -61,7 +61,7 @@
 ---
 
 
-# 2026-10-12
+# 2026-10-12<main>
 
 ### Changed
 - 
@@ -81,7 +81,7 @@
 ---
 
 
-# 2026-10-12
+# 2026-10-12<main>
 
 ### Changed
 - rotateType = 1 逆時針 ， = 0 順時針
@@ -94,7 +94,7 @@
 --
 
 
-# 2026-10-22<editor_write_by_my_self>
+# 2026-10-22<editor_write_by_my_self><editor_write_by_my_self>
 
 ### Changed
 
@@ -107,7 +107,7 @@
 --
 
 
-# 2026-10-24<rhythm_line_drawing_finish>
+# 2026-10-24<rhythm_line_drawing_finish><editor_write_by_my_self>
 
 ### Changed
 
@@ -117,3 +117,15 @@
 
 ### Removed
 
+
+--
+
+
+# 2026-10-25<><editor_write_by_my_self>
+
+### Changed
+
+### Added
+- TimmingMarker can run
+
+### Removed

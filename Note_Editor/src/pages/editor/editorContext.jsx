@@ -1,7 +1,9 @@
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, useRef } from 'react';
 
 const editorContext = createContext();
+const musicTime = createContext();
 
+// 軌道與音樂資料==========================================================
 export const EditorProvider = ({ musicDuration, bpm, beat, signature, aBeatPx, children }) => {
 
   const rhythmData = useMemo(() => {
@@ -30,5 +32,17 @@ export const EditorProvider = ({ musicDuration, bpm, beat, signature, aBeatPx, c
     </editorContext.Provider>
   );
 };
-
 export const UseRhythm = () => useContext(editorContext);
+
+
+// 音樂時間控制==========================================================
+export const MusicTimeProvider = ({ children }) => {
+
+  const musicTimeRef = useRef(0);
+
+  return (
+    <musicTime.Provider value={musicTimeRef}>
+      {children}
+    </musicTime.Provider>
+  );
+}
