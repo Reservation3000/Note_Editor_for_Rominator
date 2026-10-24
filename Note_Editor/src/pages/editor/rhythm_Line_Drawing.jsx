@@ -35,51 +35,50 @@ const TimeRuler = () => {
 }
 
 // 時間標記
-const TimmingMarker = ({ musicRef }) => {
+const TimmingMarker = () => {
 
-  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek); // 訂閱音樂時間
-  const musicSeek = musicTimeZ((state) => state.musicSeek);
-  const [isHover , setIsHover] = useState(false);  // 是否璇停
-
-  const { 
-    musicPx, //整首歌有幾像素
-    musicDuration, //整首歌有幾毫秒
-    // howManyBar, //有多少小節(非整除)
+  // howManyBar, //有多少小節(非整除)
     // aBarDuration, //一小節幾毫秒
     // beatPx,   //每毫秒走幾像素
     // howManyBeat, //有多少拍(非整除)
     // aBeatDuration, //一拍幾毫秒
-  } = UseRhythm();
-  const [isDragging, setIsDragging] = useState(false);
 
-  const TRACK_HEIGHT = 590; // 軌道高度
-  const limitX = (x) => { return limitRange(musicPx, 0, x); }  //限制移動範圍在0~musicPx之間
+  const setMusicView = musicTimeZ((state) => state.setMusicView); // 訂閱音樂時間set
+  const musicView = musicTimeZ((state) => state.musicView);       // 訂閱音樂時間
+  const musicInstance = musicTimeZ((state) => state.musicInstance); // 訂閱音樂物件set
+  const [isHover , setIsHover] = useState(false);               // 是否懸停
+  const { musicPx, musicDuration } = UseRhythm();               //整首歌有幾像素  //整首歌有幾毫秒
+  const [isDragging, setIsDragging] = useState(false);          // 是否正拖曳
+  const TRACK_HEIGHT = 590;                                     // 軌道高度
+  const limitX = (x) => { return limitRange(musicPx, 0, x); }   //限制移動範圍在0~musicPx之間
+  const positionX = timeToWidth(musicView, musicDuration, musicPx); // 計算位置
 
-  const positionX = timeToWidth(musicSeek, musicDuration, musicPx); // 計算位置
-  console.log(positionX);
 
   const handleStart = (event) => {
     setIsDragging(true);
     const time = Math.floor(widthToTime(musicPx, musicDuration)(event.target.x()));
-    setMusicSeek(time);
+
+    setMusicView(time);
+    musicInstance?.seek(time / 1000);
   }
  
   const handleMove = (event) => {
     if (isDragging) {
       const time = Math.floor(widthToTime(musicPx, musicDuration)(event.target.x()));
-      setMusicSeek(time);
+
+      setMusicView(time);
+      musicInstance?.seek(time / 1000);
     }
   }
 
-   const handleEnd = () => {
-    setIsDragging(false);
-  }
+  const handleEnd = () => { setIsDragging(false);  }
+
 
   return (
     <Stage width={musicPx} height={TRACK_HEIGHT} >
       <Layer>
         <Group x={positionX}      // 位置
-               draggable  // 啟用拖曳
+               draggable          // 啟用拖曳
                dragBoundFunc={(position) => ({ x: limitX(position.x) , y: 0 })}  // 限制拖曳範圍
                onDragStart={handleStart}
                onDragMove={handleMove}
@@ -164,7 +163,7 @@ const RotateRhythmLineDrawing = () => {
   );
 }
 
-export const Editor = ({ musicDuration, bpm, beat, signature, aBeatPx, musicRef }) => (
+export const Editor = ({ musicDuration, bpm, beat, signature, aBeatPx }) => (
   <EditorProvider
     musicDuration={musicDuration}
     bpm={bpm}
@@ -177,7 +176,7 @@ export const Editor = ({ musicDuration, bpm, beat, signature, aBeatPx, musicRef 
     <div style={{ position: 'relative' }}>
       <RhythmLineDrawing />
       <div style={{position:'absolute', inset:0 , zIndex:1}} >
-        <TimmingMarker musicRef={musicRef}/>
+        <TimmingMarker />
       </div>
     </div>
 

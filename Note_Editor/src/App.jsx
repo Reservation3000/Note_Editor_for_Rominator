@@ -26,7 +26,7 @@ function App() {
   const [beat , setBeat] = useState(4);
   const [signature  , setSignature] = useState(4);
   const [bpm , setBpm] = useState(120);
-  const [aBeatPx , setABeatPx] = useState(70);
+  const [aBeatPx , setABeatPx] = useState(25);
   const editorConfig = useMemo(() => ({
     bpm,
     beat,
@@ -87,7 +87,7 @@ function App() {
 
                 <div className="timmingAndNoteEditor_Contanier_Buttom">
                   {/* <Editor /> */}
-                  <RhythmEditor musicDuration={musicDuration} bpm={bpm} beat={beat} signature={signature} aBeatPx={aBeatPx}/>
+                  <RhythmEditor musicDuration={musicDuration} bpm={bpm} beat={beat} signature={signature} aBeatPx={aBeatPx} />
                 </div>
                 
               </div>

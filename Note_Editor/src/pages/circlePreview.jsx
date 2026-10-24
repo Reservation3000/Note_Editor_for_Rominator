@@ -41,12 +41,12 @@ const getPreviewEvents = (csvData) => csvData.flatMap((note, noteIndex) => {
 });
 
 export const CirclePreview = ({ csvData, speed }) => {
-  const musicSeek = musicTimeZ((state) => state.musicSeek);
+  const musicView = musicTimeZ((state) => state.musicView);
   const pixelsPerFrame = Math.max(Number(speed) || 0.06, 0.001);
   const travelDuration = ((GAME_START_POSITION - GAME_END_POSITION) / pixelsPerFrame) * (1000 / 60);
   const previewEvents = useMemo(() => getPreviewEvents(csvData), [csvData]);
   const hitSoundRef = useRef(null);
-  const previousMusicTimeRef = useRef(musicSeek);
+  const previousMusicTimeRef = useRef(musicView);
 
   useEffect(() => {
     const hitSound = new Howl({ src: [hitSoundUrl], volume: 0.35, preload: true });
@@ -60,21 +60,21 @@ export const CirclePreview = ({ csvData, speed }) => {
 
   useEffect(() => {
     const previousTime = previousMusicTimeRef.current;
-    previousMusicTimeRef.current = musicSeek;
-    if (musicSeek <= previousTime || !hitSoundRef.current) return;
+    previousMusicTimeRef.current = musicView;
+    if (musicView <= previousTime || !hitSoundRef.current) return;
 
     previewEvents.forEach((event) => {
-      if (event.triggerTime > previousTime && event.triggerTime <= musicSeek) {
+      if (event.triggerTime > previousTime && event.triggerTime <= musicView) {
         hitSoundRef.current.play();
       }
     });
-  }, [musicSeek, previewEvents]);
+  }, [musicView, previewEvents]);
 
   return (
     <div className="circlePreviewContent">
       <header className="circlePreviewHeader">
         <h3>GAME PREVIEW</h3>
-        <span>{formatTime(musicSeek)}</span>
+        <span>{formatTime(musicView)}</span>
       </header>
 
       <svg
@@ -118,7 +118,7 @@ export const CirclePreview = ({ csvData, speed }) => {
         })}
 
         {previewEvents.map((event) => {
-          const elapsed = musicSeek - (event.triggerTime - travelDuration);
+          const elapsed = musicView - (event.triggerTime - travelDuration);
           if (elapsed < 0 || elapsed >= travelDuration) return null;
 
           const progress = elapsed / travelDuration;
@@ -163,12 +163,11 @@ export const CirclePreview = ({ csvData, speed }) => {
           );
         })}
 
-        <text x={radius} y={radius} className="circlePreviewTime">{Math.floor(musicSeek)}</text>
+        <text x={radius} y={radius} className="circlePreviewTime">{Math.floor(musicView)}</text>
       </svg>
     </div>
   );
 };
-
 
 
 

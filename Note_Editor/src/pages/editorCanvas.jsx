@@ -217,11 +217,11 @@ const RotateEvents = () => {
 
 const TimeRuler = () => {
   const { timeline } = useEditorView();
-  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
+  const setMusicView = musicTimeZ((state) => state.setMusicView);
 
   const seekToBar = (index) => {
     const time = limitRange(timeline.durationMs, 0, index * timeline.barDurationMs);
-    setMusicSeek(time);
+    setMusicView(time);
   };
 
   return (
@@ -248,9 +248,9 @@ const Playhead = () => {
   const { timeline, editorRef } = useEditorView();
   const [isDragging, setIsDragging] = useState(false);
   const [previewTime, setPreviewTime] = useState(null);
-  const musicSeek = musicTimeZ((state) => state.musicSeek);
-  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
-  const currentTime = previewTime ?? musicSeek;
+  const musicView = musicTimeZ((state) => state.musicView);
+  const setMusicView = musicTimeZ((state) => state.setMusicView);
+  const currentTime = previewTime ?? musicView;
   const playheadX = timeline.timeToWidth(currentTime);
   const reportPosition = useEffectEvent((position) => ScrollMarker(editorRef, position));
 
@@ -260,7 +260,7 @@ const Playhead = () => {
 
   const seekToTime = (time) => {
     const boundedTime = limitRange(timeline.durationMs, 0, time);
-    setMusicSeek(boundedTime);
+    setMusicView(boundedTime);
     setPreviewTime(null);
   };
 

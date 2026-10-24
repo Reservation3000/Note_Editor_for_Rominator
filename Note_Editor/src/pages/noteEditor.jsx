@@ -127,15 +127,17 @@ const formatNote = (note) => {
 
 // The list is sorted for reading, while each row keeps its original editor index.
 export const NotesList = () => {
+  const musicInstance = musicTimeZ((state) => state.musicInstance); // 訂閱音樂實例
   const { notes, selectedIndex, selectNote } = useNoteEditor();
-  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
+  const setMusicView = musicTimeZ((state) => state.setMusicView);
   const sortedNotes = notes
     .map((note, index) => ({ note, index }))
     .sort((first, second) => getNoteTime(first.note) - getNoteTime(second.note) || first.index - second.index);
 
   const handleOnClick = (note, index) => {
     selectNote(index);
-    setMusicSeek(getNoteTime(note));
+    setMusicView(getNoteTime(note));
+    musicInstance?.seek(getNoteTime(note) / 1000);
   };
 
   return (

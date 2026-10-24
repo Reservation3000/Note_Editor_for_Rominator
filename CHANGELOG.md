@@ -127,5 +127,12 @@
 
 ### Added
 - TimmingMarker can run
+- Implement audio seeking via 
+  - (1.)TimmingMarker
+  - (2.)left note column
+  - (3.)progress bar(TimmingControl)
+- Turn store.js to have 
+  - (1.)musicView: change react time number and click view
+  - (2.)musicInstance: equal Howler instance, that can use .seek to turn the music reel timming.
 
 ### Removed

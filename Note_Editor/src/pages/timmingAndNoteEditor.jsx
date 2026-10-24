@@ -20,7 +20,7 @@ export const PlayButton = ({ setStop, stop }) => {
 // 控制音樂時間的滑桿=======================================================
 export const TimmingControl = ({ musicDuration, musicUrl, setMusicDuration, stop, setStop }) => {
   
-  const { handleSliderChange, handleSliderAfterChange, formattedTime, musicSeek } = MusicPlay(setStop, setMusicDuration, musicUrl, stop);
+  const { handleSliderChange, handleSliderAfterChange, formattedTime, musicView } = MusicPlay(setStop, setMusicDuration, musicUrl, stop);
 
   return (
     <div className='timmingControl_Contanier'>
@@ -29,10 +29,10 @@ export const TimmingControl = ({ musicDuration, musicUrl, setMusicDuration, stop
         keyboard
         min={0}
         max={ musicDuration }
-        value={ musicSeek }
+        value={ musicView }
         onChange={ handleSliderChange }           // 拖曳中觸發
         onChangeComplete={ handleSliderAfterChange } // 放開滑鼠時觸發 (antd v5+)
-        tooltip={{ formatter: () => formatTime(musicSeek) }} // 修正 tooltip 寫法
+        tooltip={{ formatter: () => formatTime(musicView) }} // 修正 tooltip 寫法
       >
       </Slider>
       <p style={{ color: '#ffffff' }}>{formattedTime}</p>
@@ -113,7 +113,8 @@ export const LandSpaceControl = ({ setABeatPx , aBeatPx }) => {
       <Slider
         className='landSpaceControl_Slider'
         keyboard
-        min={10}
+        defaultValue={25}
+        min={8}
         max={50}
         value={aBeatPx}
         onChange={onChange}

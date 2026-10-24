@@ -101,14 +101,16 @@ export async function DataGet( file, setCsvData , setStartLand , setChartOffest 
 
 export function MusicPlay( setStop , setMusicDuration , musicUrl , stop ){
   
-  const musicSeek = musicTimeZ((state) => state.musicSeek); 
-  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek); 
+  const musicView = musicTimeZ((state) => state.musicView); 
+  const setMusicView = musicTimeZ((state) => state.setMusicView); 
+  const musicInstance = musicTimeZ((state) => state.musicInstance);
+  const setMusicInstance = musicTimeZ((state) => state.setMusicInstance);
 
-  const formattedTime = formatTime(musicSeek);
+  const formattedTime = formatTime(musicView);
 
-  const musicRef = useRef(null); 
-  const rAFRef = useRef(null);         
-  const isDraggingRef = useRef(false); 
+  // const musicRef = useRef(null);       // 音樂物件的參考
+  const rAFRef = useRef(null);         // requestAnimationFrame 的 ID
+  const isDraggingRef = useRef(false); // 是否正在拖曳滑桿
 
   useEffect(() => {
     if (!musicUrl) {
@@ -124,30 +126,33 @@ export function MusicPlay( setStop , setMusicDuration , musicUrl , stop ){
       onloaderror: (_id, error) => console.error('music load error:', error),
     });
 
-    musicRef.current = music;
+    setMusicInstance(music);
+
+    setMusicView(0);
+    setMusicInstance(music);
 
     // 組件卸載時清除
     return () => {
       music.unload();  
-      musicRef.current = null;
+      setMusicInstance(null);
     };
   }, [musicUrl, setMusicDuration]);
 
   useEffect(() => {
-    if (!musicRef.current) return;
+    if (!musicInstance) return;
 
     if (stop) {
-      musicRef.current.pause();
+      musicInstance.pause();
     } else {
-      musicRef.current.play();
+      musicInstance.play();
     }
-  }, [stop]);
+  }, [stop, musicInstance]);
 
   useEffect(() => {
     const updateProgress = () => {
 
-      if (musicRef.current.playing() && !isDraggingRef.current) {
-        setMusicSeek(musicRef.current.seek() * 1000);
+      if (musicInstance.playing() && !isDraggingRef.current) {
+        setMusicView(musicInstance.seek() * 1000);
       }
       rAFRef.current = requestAnimationFrame(updateProgress);
     };
@@ -158,25 +163,24 @@ export function MusicPlay( setStop , setMusicDuration , musicUrl , stop ){
     return () => { 
       cancelAnimationFrame(rAFRef.current); 
     };
-  }, [setMusicSeek]); 
+  }, [setMusicView, musicInstance]); 
 
   // 拖曳中
   const handleSliderChange = (newValue) => {
-    isDraggingRef.current = true; // 上鎖：阻斷 rAF
-    setMusicSeek(newValue);       // 畫面立即跟著滑鼠走
-    setStop(true);               // 拖曳時暫停音樂
+    isDraggingRef.current = true;
+    musicInstance.seek(newValue / 1000); // 改變音軌
+    setMusicView(newValue);       // 畫面立即跟著滑鼠走
   };
 
   // 拖曳結束
   const handleSliderAfterChange = (newValue) => {
-    if (musicRef.current) {
-      musicRef.current.seek(newValue / 1000); // 真正改變音軌
+    if (musicInstance) {
+      musicInstance.seek(newValue / 1000); // 改變音軌
     }
-    isDraggingRef.current = false; // 解鎖：把控制權還給 rAF    
-    setStop(false); // 拖曳結束後恢復撥放
+    isDraggingRef.current = false;
   };
 
-  return { handleSliderChange, handleSliderAfterChange, formattedTime, musicSeek };
+  return { handleSliderChange, handleSliderAfterChange, formattedTime, musicView };
 
 }
 
@@ -196,15 +200,15 @@ export function MusicChose( e , setStop , setFileName , setMusicUrl, setMusicDur
 
 export function MusicTimeInput( musicDuration ){
 
-  const musicSeek = musicTimeZ((state) => state.musicSeek);
-  const setMusicSeek = musicTimeZ((state) => state.setMusicSeek);
+  const musicView = musicTimeZ((state) => state.musicView);
+  const setMusicView = musicTimeZ((state) => state.setMusicView);
 
-  const [inputTime, setInputTime] = useState(Math.floor(musicSeek)); // 輸入的數值
+  const [inputTime, setInputTime] = useState(Math.floor(musicView)); // 輸入的數值
   const isEditingRef = useRef(false); //是否正在輸入
 
   useEffect(() => {
-    if (!isEditingRef.current) setInputTime(Math.floor(musicSeek));
-  }, [musicSeek]);
+    if (!isEditingRef.current) setInputTime(Math.floor(musicView));
+  }, [musicView]);
 
   const handleOnFocus = () => {
     isEditingRef.current = true;
@@ -215,16 +219,15 @@ export function MusicTimeInput( musicDuration ){
 
     // 如果沒有輸入東西，或輸入的不是有效數字，則時間返回現在撥放的時間
     if (inputTime === null || !Number.isFinite(inputTime)) {
-      setInputTime(Math.floor(musicTimeZ.getState().musicSeek));
+      setInputTime(Math.floor(musicTimeZ.getState().musicView));
       return;
     } 
     else {
       const time = limitRange( musicDuration, 0, inputTime );
-      setMusicSeek(time);
+      setMusicView(time);
       setInputTime(time);
     }
   };
 
   return { inputTime, handleOnFocus, seekToInputTime, setInputTime };
 }
-
