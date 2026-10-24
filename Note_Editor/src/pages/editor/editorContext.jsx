@@ -2,7 +2,6 @@ import { createContext, useContext, useMemo } from 'react';
 
 const editorContext = createContext();
 
-
 export const EditorProvider = ({ musicDuration, bpm, beat, signature, aBeatPx, children }) => {
 
   const rhythmData = useMemo(() => {

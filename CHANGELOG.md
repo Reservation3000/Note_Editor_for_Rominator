@@ -102,3 +102,18 @@
 - editor資料夾 => to write editor by my self
 
 ### Removed
+
+
+--
+
+
+# 2026-10-24<rhythm_line_drawing_finish>
+
+### Changed
+
+### Added
+- RhythmLineDrawing
+- RotateRhythmLineDrawing
+
+### Removed
+
